@@ -11,13 +11,14 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_squared_error, mean_squared_log_error, mean_absolute_error
 from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
+from typing import Tuple
 
 def remove_null_values(df:pl.DataFrame, cols:list) -> pl.DataFrame:
     for col in cols:
         df = df.filter(~pl.col(col).is_null())
     return df
 
-def label_encode_column(df:pd.DataFrame, cols_name:str, encoder:LabelEncoder, fit_encoder:bool, logger_obj:logging.Logger) -> (pd.DataFrame, LabelEncoder, bool):
+def label_encode_column(df:pd.DataFrame, cols_name:str, encoder:LabelEncoder, fit_encoder:bool, logger_obj:logging.Logger) -> Tuple[pd.DataFrame, LabelEncoder, bool]:
     refit_encoder:bool = False
     # zones_list = []
     # if model_name != "duration":
@@ -69,7 +70,7 @@ def train_randomforest_regressor(train_x, train_y, params):
     model.fit(train_x, train_y)
     return model
 
-def make_predictions(model_name, model, dtest, y_test, logger_obj:logging.Logger) -> (float, float, str):
+def make_predictions(model_name, model, dtest, y_test, logger_obj:logging.Logger) -> Tuple[float, float, str]:
     if model_name == "linear":
         y_test = y_test.values
     elif model_name == "randomforest":

@@ -95,8 +95,8 @@ def compute_stored_date(checkpoint_file:str, logger_object:logging.Logger):
     else:
         logger_object.info("Checkpoints file not found - Creating a new empty file for storing checkpoints.")
         data = []
-        with open(checkpoint_file, 'w') as f:
-            json.dump(data, f)
+        with open(checkpoint_file, 'w') as file:
+            json.dump(data, file)
         latest_checkpoint = datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0) #Initialize a very small value for date
     return latest_checkpoint
 
@@ -143,10 +143,10 @@ def collect_data(start_offset:int, threshold_date:datetime, starting_checkpoint:
         # Fetch the latest checkpoint date
         stored_checkpoint_date = fetch_latest_collected_date(checkpoint_file, logger_object)
 
-        if (starting_checkpoint == stored_checkpoint_date and starting_checkpoint != datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0)):
-            logger_object.info("Thread: {0}".format(thread_indx))
-            logger_object.info("Up-to-date / Collected all the available data. Application will exit.")
-            break
+        # if (starting_checkpoint == stored_checkpoint_date and starting_checkpoint != datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0)):
+        #     logger_object.info("Thread: {0}".format(thread_indx))
+        #     logger_object.info("Up-to-date / Collected all the available data. Application will exit.")
+        #     break
 
         params = {
             "$limit": batch_size,
@@ -162,15 +162,20 @@ def collect_data(start_offset:int, threshold_date:datetime, starting_checkpoint:
             # Collect response from json object
             data:list = response.json()
 
+            # Fetch the maximum date from the batch of records collected
+            collected_batch_date = fetch_maximum_collected_date(data)
+
+            if (collected_batch_date <= starting_checkpoint and starting_checkpoint != datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0)):
+                logger_object.info("Thread: {0}".format(thread_indx))
+                logger_object.info("Up-to-date / Collected all the available data. Application will exit.")
+                break
+
             if not data: # End the while loop based on three different scenarios
                 if (max_datetime == stored_checkpoint_date):
                     logger_object.info("Collected all available records for the specified extraction query. Application will exit.")
                 else:
                     logger_object.info("Request returned 0 records. Please check the correctness/validity of extraction query. Application will exit.")
                 break
-
-            # Fetch the maximum date from the batch of records collected
-            collected_batch_date = fetch_maximum_collected_date(data)
 
             # Update the maximum date
             update_max_datetime(collected_batch_date, logger_object)
