@@ -1,0 +1,4 @@
+2024-04-26 12:00:08 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/unprocessed/ already exists
+2024-04-26 12:00:08 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/processed/ already exists
+2024-04-26 12:00:08 - INFO - Process records for data collected on: 2024-04-17
+2024-04-26 12:00:08 - INFO - Loading collected data from latest modified landing path: /home/nspanos/m151_web_systems_project/data/landing/20240417

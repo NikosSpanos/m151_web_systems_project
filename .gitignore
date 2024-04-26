@@ -1,6 +1,6 @@
 /config/config.ini
-/data
-/logs/
+/data/landing
+/data/staging
 /src/__pycache__
 /src/commons/__pycache__
 /mlruns

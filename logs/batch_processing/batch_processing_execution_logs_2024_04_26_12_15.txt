@@ -1,0 +1,4 @@
+2024-04-26 12:15:28 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/unprocessed/ already exists
+2024-04-26 12:15:28 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/processed/ already exists
+2024-04-26 12:15:28 - INFO - Latest collected data in landing folder 2024-04-17 have been processed on: 2024-04-26
+2024-04-26 12:15:28 - INFO - SUCCESS: Batch processing/cleaning/feature-engineering completed.
