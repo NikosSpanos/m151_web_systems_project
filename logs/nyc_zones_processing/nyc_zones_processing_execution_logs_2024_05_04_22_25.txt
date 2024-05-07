@@ -1,0 +1,5 @@
+2024-05-04 22:25:19 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/processed/geospatial not found. Creating path...
+2024-05-04 22:25:19 - INFO - Column names with null values: []
+2024-05-04 22:25:19 - INFO - DataFrame saved as JSON under path: /home/nspanos/m151_web_systems_project/data/processed/geospatial/nyc_taxi_zones.json
+2024-05-04 22:25:19 - INFO - PROCESSING FINISHED - Data processing of NYC Zone Districts completed.
+2024-05-04 22:25:19 - INFO - SUCCESS: NYC zones processing completed.

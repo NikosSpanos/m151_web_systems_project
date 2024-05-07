@@ -1,0 +1,6 @@
+2024-05-04 22:22:01 - INFO - Staging path: data/processed/geospatial already exists. Program will continue.
+2024-05-04 22:22:50 - INFO - Staging path: data/processed/geospatial already exists. Program will continue.
+2024-05-04 22:22:51 - INFO - Column names with null values: []
+2024-05-04 22:22:51 - INFO - DataFrame saved as JSON under path: data/processed/geospatial/nyc_taxi_zones.json
+2024-05-04 22:22:51 - INFO - PROCESSING FINISHED - Data processing of NYC Zone Districts completed.
+2024-05-04 22:22:51 - INFO - SUCCESS: NYC zones processing completed.

@@ -1,0 +1,2 @@
+2024-04-28 22:05:51 - INFO - EXTRACTION FINISHED - Data collection of NYC Zone Districts from the Socrata API completed.
+2024-04-28 22:05:51 - INFO - SUCCESS: NYC zones collection completed.

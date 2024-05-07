@@ -1,0 +1,19 @@
+2024-05-07 15:13:38 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/unprocessed/ already exists. Program will continue.
+2024-05-07 15:13:38 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/partitioned/ already exists. Program will continue.
+2024-05-07 15:13:38 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips already exists. Program will continue.
+2024-05-07 15:13:38 - INFO - Latest collected data in landing folder 2024-04-17 have been processed on: 2024-05-05
+2024-05-07 15:13:38 - INFO - Loading collected data from latest modified landing path: /home/nspanos/m151_web_systems_project/data/landing/20240417
+2024-05-07 15:13:38 - INFO - READ already COMPACT json file with all the collected data records from the latest LANDING folder.
+2024-05-07 15:13:52 - INFO - tpep_pickup_datetime dates after current fiscal year (2024): 0
+2024-05-07 15:13:52 - INFO - tpep_pickup_datetime dates before current fiscal year (2024): 0
+2024-05-07 15:13:52 - INFO - tpep_dropoff_datetime dates after current fiscal year (2024): 0
+2024-05-07 15:13:52 - INFO - tpep_dropoff_datetime dates before current fiscal year (2024): 0
+2024-05-07 15:13:52 - INFO - fare_amount with negative values (<=0): 4
+2024-05-07 15:13:52 - INFO - tolls_amount with negative values (<0): 0
+2024-05-07 15:13:52 - INFO - extra with negative values (<0): 0
+2024-05-07 15:13:52 - INFO - mta_tax with negative values (<0): 0
+2024-05-07 15:13:52 - INFO - improvement_surcharge with negative values (<0): 0
+2024-05-07 15:13:52 - INFO - trip_distance with negative values (<=0): 11
+2024-05-07 15:13:52 - INFO - Taxi trips without duration (pickup date >= drop-off date): 0
+2024-05-07 15:13:52 - INFO - Column names with null values: []
+2024-05-07 15:13:53 - INFO - SUCCESS: Batch processing/cleaning/feature-engineering completed.

@@ -1,0 +1,2 @@
+2024-05-07 18:28:04 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips already exists. Program will continue.
+2024-05-07 18:28:24 - INFO - DATA ENRICHMENT FINISHED - Taxi trips enriched with geospatial data. (Total execution time = 19 days, 22:20:11.187744)

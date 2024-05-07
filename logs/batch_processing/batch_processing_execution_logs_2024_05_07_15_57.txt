@@ -1,0 +1,5 @@
+2024-05-07 15:57:49 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/unprocessed/ already exists. Program will continue.
+2024-05-07 15:57:49 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/partitioned/ already exists. Program will continue.
+2024-05-07 15:57:49 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips already exists. Program will continue.
+2024-05-07 15:57:49 - INFO - Latest collected data in landing folder 2024-04-17 have been processed on: 2024-05-05
+2024-05-07 15:57:49 - INFO - SUCCESS: Batch processing/cleaning/feature-engineering completed.

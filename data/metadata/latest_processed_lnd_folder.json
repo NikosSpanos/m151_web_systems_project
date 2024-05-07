@@ -1,7 +1,14 @@
 [
     {
         "latest_lnd_folder": "20240417",
-        "latest_unprocessed_folder": "20240425",
-        "execution_dt": "20240426"
+        "latest_unprocessed_folder": "20240505",
+        "status": "processed",
+        "execution_dt": "20240505"
+    },
+    {
+        "latest_lnd_folder": "20240416",
+        "latest_unprocessed_folder": "20240504",
+        "status": "unprocessed",
+        "execution_dt": "20240504"
     }
 ]

@@ -16,3 +16,7 @@ streamlit==1.27.2
 transformers==4.34.1
 torch==2.1.0
 spacy==3.7.2
+shapely==2.0.4
+geopy==2.4.1
+opencage==2.4.0
+openrouteservice==2.3.3
