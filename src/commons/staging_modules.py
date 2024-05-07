@@ -5,10 +5,12 @@ import polars as pl
 import os
 import logging
 import json
-from datetime import datetime, timedelta
-from typing import Tuple, Optional
-from concurrent.futures import ThreadPoolExecutor
+from pathlib import Path
+from datetime import datetime
+from typing import Tuple, Optional, Literal
 from multiprocessing import Pool
+from shapely.geometry import Polygon, MultiPolygon, Point
+from shapely import wkt
 
 def md5_hashing(value):
     return hashlib.md5(value.encode()).hexdigest()
@@ -33,38 +35,64 @@ def init_unprocessed_folder(stg_path:str, subfolder:str) -> Tuple[bool, str]:
         compact_flag = True
         return compact_flag, new_stg_loc
 
+def init_partitioned_folder(stg_path:str, subfolder:str) -> str:
+    new_stg_loc = os.path.join(stg_path, subfolder)
+    os.makedirs(new_stg_loc, exist_ok=True)
+    return new_stg_loc
+
 def init_lnd_folder(lnd_parent_path:str) -> str:
     available_directories = [
         os.path.join(lnd_parent_path, directory) for directory in os.listdir(lnd_parent_path) if len(os.listdir(os.path.join(lnd_parent_path, directory))) !=0 
     ] # Retrieve the latest non-empty landing directory with collected data.
     return max(available_directories, key=os.path.getmtime)
 
-def update_processed_metadata_file(metadata_file:str, metadata_dict:dict):
+def update_processed_metadata_file(metadata_file:str, metadata_dict:dict =None, latest_unprocessed_folder:datetime = None):
     try:
         with open(metadata_file, 'r') as file:
             data = json.load(file)
     except Exception as e:
         data = []
+    if data != []:
+        latest_checkpoint:dict = sorted(data, key=lambda x: x["execution_dt"], reverse=True)[0]
+        if (latest_checkpoint["status"] == "unprocessed") and latest_checkpoint["latest_unprocessed_folder"] == latest_unprocessed_folder.strftime("%Y%m%d"):
+            latest_checkpoint["status"] = "processed"
+            data[data.index(latest_checkpoint)] = latest_checkpoint
+            with open(metadata_file, "w") as file:
+                json.dump(data, file, indent=4)
+            return
+    if not metadata_dict:
+        return
     data.append(metadata_dict)
     with open(metadata_file, "w") as file:
         json.dump(data, file, indent=4)
 
-def get_latest_processed_lnd_folder(metadata_file:str) -> Tuple[datetime, Optional[datetime]]:
+def get_latest_processed_lnd_folder(metadata_file:str) -> Tuple[datetime, Optional[datetime], Optional[str]]:
     if not os.path.exists(metadata_file):
         data = []
         with open(metadata_file, 'w') as file:
             json.dump(data, file)
-        return (datetime(year=1970, month=1, day=1).date(), None)
+        return (datetime(year=1970, month=1, day=1).date(), None, None)
     with open(metadata_file, 'r') as file:
         data = json.load(file)
         if len(data) != 0:
-            max_checkpoint = sorted(data, key=lambda x: x["latest_lnd_folder"], reverse=True)
-            latest_checkpoint:datetime = datetime.strptime(max_checkpoint[0]["latest_lnd_folder"], '%Y%m%d').date()
-            unprocessed_folder:datetime = datetime.strptime(max_checkpoint[0]["execution_dt"], '%Y%m%d').date()
+            max_checkpoint = sorted(data, key=lambda x: x["latest_lnd_folder"], reverse=True)[0]
+            latest_checkpoint:datetime = datetime.strptime(max_checkpoint["latest_lnd_folder"], '%Y%m%d').date()
+            unprocessed_folder:datetime = datetime.strptime(max_checkpoint["latest_unprocessed_folder"], '%Y%m%d').date()
+            status:str = max_checkpoint["status"]
         else:
             latest_checkpoint:datetime = datetime(year=1970, month=1, day=1).date()
             unprocessed_folder = None
-    return (latest_checkpoint, unprocessed_folder)
+            status = None
+    return (latest_checkpoint, unprocessed_folder, status)
+
+def get_latest_partitioned_folder(stg_path:str, logging_object:logging.Logger) -> str:
+    if os.listdir(stg_path):
+        available_directories = [os.path.join(stg_path, file) for file in os.listdir(stg_path)]
+        latest_modified_directory = max(available_directories, key=os.path.getmtime)
+        return latest_modified_directory
+    else:
+        logging_object.error("Partition directory is empty. Please verify that the data_preprocessing.py has been executed first.")
+        return
 
 def daytime_value(hour_value):
     if (hour_value in range(7,11)) or (hour_value in range(16,20)):
@@ -106,7 +134,7 @@ def load_json_to_dataframe(lnd_path:str, cols_list:list, logger_obj:logging.Logg
 def write_df_toJSON(relative_path:str, df:pl.DataFrame, filename:str, logger_obj:logging.Logger):
     create_folder(relative_path)
     filename = os.path.join(relative_path, "{0}.json".format(filename))
-    df.write_json(filename)
+    df.write_ndjson(filename)
     logger_obj.info(f"DataFrame saved as JSON under path: {filename}")
 
 def write_df_toJSON_v2(relative_path:str, df:pl.DataFrame, filename:str, logger_obj:logging.Logger):
@@ -121,6 +149,14 @@ def write_df_toCSV(relative_path:str, df:pl.DataFrame, filename:str, logger_obj:
     filename = os.path.join(relative_path, "{0}.csv".format(filename))
     df.write_csv(filename, has_header=True, separator=",")
     logger_obj.info(f"DataFrame saved as CSV under path: {filename}")
+
+def retrieve_latest_modified_file(relative_path:str, flag:str = "taxi_trip") -> str:
+    file_pattern = "*_data.json" if flag == "taxi_trip" else "*_zones.json"
+    pattern = os.path.join(relative_path, file_pattern) 
+    target_files = glob.glob(pattern)
+    files_with_timestamps = [(file, os.path.getmtime(file)) for file in target_files]
+    latest_json_file = max(files_with_timestamps, key=lambda x: x[1])[0] if files_with_timestamps else None
+    return latest_json_file
 
 def fix_data_type(df:pl.DataFrame, type_mapping:dict, dt_format:str = None) -> pl.DataFrame:
     for column, dtype in type_mapping.items():
@@ -160,6 +196,9 @@ def remove_equal_pickup_dropoff_times(df:pl.DataFrame, pu_col:str, do_col:str, l
     df = df.filter(pl.col(pu_col).lt(pl.col(do_col)))
     return df
 
+# ==================================================
+# FEATURE ENGINEERING MODULES
+# ==================================================
 def feature_engineer_trip_duration(df:pl.DataFrame,  pu_col:str, do_col:str, duratation_col_name:str) -> pl.DataFrame:
     df = df.with_columns(
         ( ( ( ( pl.col(do_col) - pl.col(pu_col) )/60 )/1_000_000 ).round(2)).cast(pl.Float64).alias(duratation_col_name)
@@ -181,14 +220,92 @@ def feature_engineer_trip_daytime(df:pl.DataFrame, daytime_mapper:list, cols:tup
         )
     return df
 
-def retrieve_latest_modified_file(relative_path:str, short_version:bool, samples_values:str=None):
-    if short_version:
-        json_files = glob.glob("{0}/*_data_{1}.json".format(relative_path, samples_values))
-    else:
-        json_files = glob.glob("{0}/*_data.json".format(relative_path))
-    files_with_timestamps = []
-    for file in json_files:
-        modified_time = os.path.getmtime(file)
-        files_with_timestamps.append((file, modified_time))
-    latest_json_file = max(files_with_timestamps, key=lambda x: x[1])[0]
-    return latest_json_file
+def feature_engineer_trip_distance(df:pl.DataFrame, cols:str) -> pl.DataFrame:
+    df = df.with_columns(
+        (df[cols] * 1.60934).round(2).alias(cols)
+    )
+    return df
+
+def feature_engineer_trip_cost(df:pl.DataFrame, cols:list) -> pl.DataFrame:
+    sum_expression = sum([pl.col(column) for column in cols])
+    df = df.with_columns(
+        sum_expression.alias("trip_cost")
+    )
+    return df
+
+# ==================================================
+# GEOSPATIAL DATA PROCESSING MODULES
+# ==================================================
+def identify_nyc_zones_with_non_float_values(df:pl.DataFrame, pattern:Literal[''], cols:list) -> pl.DataFrame:
+    for column in cols:
+        df = df.with_columns(pattern_matched = pl.col(column).str.contains(pattern)).filter(pl.col("pattern_matched")).drop("pattern_matched")
+    return df
+
+def identify_nyc_zones_with_multiple_spaced_values(df:pl.DataFrame, cols:list) -> pl.DataFrame:
+    conditions = [df[col].str.split(" ").list.lengths() == 1 for col in cols]
+    filter_expression = pl.reduce(lambda a, b: a & b, conditions)
+    df = df.filter(filter_expression)
+    return df
+
+def identify_nyc_zones_with_non_integer_values(df:pl.DataFrame, cols:list) -> pl.DataFrame:
+    conditions = [(~df[col].apply(lambda x: x.is_integer())) for col in cols]
+    filter_expression = pl.reduce(lambda a, b: a & b, conditions)
+    df = df.filter(filter_expression)
+    return df
+
+def identify_nyc_zones_with_non_string_values(df:pl.DataFrame, cols:list, pattern:Literal['']) -> pl.DataFrame:
+    conditions = [(~df[col].str.contains(pattern)) for col in cols]
+    filter_expression = pl.reduce(lambda a, b: a & b, conditions)
+    df = df.filter(filter_expression)
+    return df
+
+def flatten_list_of_lists(data) -> list:
+    return [subitem2 for subitem1 in data for subitem2 in subitem1]
+
+def transform_polygons_to_multipolygons(flat_list:list) -> list:
+    return [ MultiPolygon( [Polygon(coord) for coord in polygon]).wkt for polygon in  flat_list]
+
+def compute_geo_areas(multipolygons:MultiPolygon) -> float:
+    return wkt.loads(multipolygons).area
+
+def compute_polygon_center(multipolygons:MultiPolygon) -> Point:
+    return wkt.loads(multipolygons).centroid.wkt
+
+def compute_longitute(centroid_value:Point):
+    return wkt.loads(centroid_value).x
+
+def compute_latitude(centroid_value:Point):
+    return wkt.loads(centroid_value).y
+
+# ==================================================
+# DATA ENRICHMENT
+# ==================================================
+def enrich_partition_samples(partition:str, mapping_names:list, df_geo:pl.DataFrame, stg_processed_path:str):
+    items = Path(partition).rglob("*.parquet")
+    for parquet_file in items:
+        # df_partition = pl.read_parquet(os.path.join(partition, "*.parquet"))
+        partitions = dict(part.split('=') for part in parquet_file.parts if '=' in part)
+        for key, value in partitions.items():
+            df_partition= pl.read_parquet(parquet_file).with_columns(pl.lit(value, dtype=pl.Utf8).alias(key))
+            merged_batch = df_partition.join(
+                df_geo,
+                left_on=pl.col("pulocationid"),
+                right_on=pl.col("objectid"),
+                how='left'
+            ).rename(mapping_names[0])
+            merged_batch = merged_batch.join(
+                df_geo,
+                left_on=pl.col("dolocationid"),
+                right_on=pl.col("objectid"),
+                how='left'
+            ).rename(mapping_names[1])
+            merged_batch.write_parquet(
+                stg_processed_path,
+                compression="zstd",
+                use_pyarrow=True,
+                pyarrow_options={
+                    "partition_cols": ["partition_dt"],
+                    "existing_data_behavior": "overwrite_or_ignore"
+                }
+            )
+    # return merged_batch

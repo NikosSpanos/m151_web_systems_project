@@ -5,8 +5,6 @@ import numpy as np
 import logging
 import xgboost as xgb
 import joblib
-import setuptools
-import distutils
 from sklearn.preprocessing import LabelEncoder
 from sklearn.metrics import mean_squared_error, mean_squared_log_error, mean_absolute_error
 from sklearn.linear_model import LinearRegression

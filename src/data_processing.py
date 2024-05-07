@@ -4,11 +4,12 @@ import polars as pl
 import logging
 import configparser
 import os
-import glob
-from datetime import datetime
+import time
+from datetime import datetime, timedelta
 from commons.custom_logger import setup_logger
 from commons.staging_modules import init_stg_path, \
     init_unprocessed_folder, \
+    init_partitioned_folder, \
     init_lnd_folder, \
     get_latest_processed_lnd_folder, \
     update_processed_metadata_file, \
@@ -21,9 +22,9 @@ from commons.staging_modules import init_stg_path, \
     feature_engineer_trip_duration, \
     feature_engineer_trip_hour, \
     feature_engineer_trip_daytime, \
-    retrieve_latest_modified_file, \
-    write_df_toCSV, \
-    write_df_toJSON_v2
+    feature_engineer_trip_distance, \
+    feature_engineer_trip_cost, \
+    retrieve_latest_modified_file
 
 def main(logger_object:logging.Logger):
     
@@ -40,6 +41,7 @@ def main(logger_object:logging.Logger):
     application_path = config.get("settings", "application_path")
     lnd_parent_loc = config.get("local-path-settings", "landing_folder")
     stg_unprocessed_loc = config.get("local-path-settings", "staging_unprocessed_folder")
+    stg_partitioned_loc = config.get("local-path-settings", "stg_partitioned_loc")
     stg_processed_loc = config.get("local-path-settings", "staging_processed_folder")
     checkpoint_folder = os.path.join(application_path, config.get("local-path-settings", "metadata_folder"))
     checkpoint_file = os.path.join(application_path, checkpoint_folder, config.get("local-path-settings", "metadata_processed_file"))
@@ -49,14 +51,16 @@ def main(logger_object:logging.Logger):
     # INITIALIZE STAGING STORAGE PATH (UNPROCESS + PROCESSED)
     #========================================================
     stg_unprocessed_path = os.path.join(application_path, stg_unprocessed_loc)
+    stg_partitioned_path = os.path.join(application_path, stg_partitioned_loc)
     stg_processed_path = os.path.join(application_path, stg_processed_loc)
     init_stg_path(stg_unprocessed_path, logger_object)
+    init_stg_path(stg_partitioned_path, logger_object)
     init_stg_path(stg_processed_path, logger_object)
 
     #========================================================
     # COLLECT THE LATEST PROCESSED LANDING FOLER
     #========================================================
-    latest_date_modified_lnd_folder, latest_unprocessed_date = get_latest_processed_lnd_folder(checkpoint_file)
+    latest_date_modified_lnd_folder, latest_unprocessed_date, status = get_latest_processed_lnd_folder(checkpoint_file)
 
     #=========================================================
     # FIND THE LANDING FOLDER TO PROCESS LATEST COLLECTED DATA
@@ -64,24 +68,31 @@ def main(logger_object:logging.Logger):
     lnd_path = init_lnd_folder(os.path.join(application_path, lnd_parent_loc))
     latest_lnd_date = datetime.strptime(lnd_path.split('/')[-1], '%Y%m%d').date()
     execute_processing:bool = False
+
+    print(latest_date_modified_lnd_folder)
+    print(latest_lnd_date)
+    # exit()
     if latest_lnd_date > latest_date_modified_lnd_folder:
         logger_object.info(f"Process records for data collected on: {latest_lnd_date}")
         execute_processing = True
     else:
-        if latest_unprocessed_date:
+        if latest_unprocessed_date and status == "unprocessed":
             logger_object.info(f"Latest collected data in landing folder {latest_lnd_date} have been processed on: {latest_unprocessed_date}")
+            execute_processing = True
         else:
-            logger_object.error(f"Even though the landing folder has been processed there is no unprocessed folder logged. Please check for errors.")
-        execute_processing = False
-        return # Exit the python program if there is no new data to process.
-    
+            if latest_unprocessed_date and status == "processed":
+                logger_object.info(f"Latest collected data in landing folder {latest_lnd_date} have been processed on: {latest_unprocessed_date}")
+            else:
+                logger_object.error(f"Even though the landing folder has been processed there is no unprocessed folder logged. Please check for errors.")
+            execute_processing = False
+            return
     if execute_processing:
         logger_object.info(f"Loading collected data from latest modified landing path: {lnd_path}")
-        
         #======================================================================
         # INITIALIZE UNPROCESSED STORAGE PATH FOR COMPACTING LANDING JSON FILES
         #======================================================================
         compact_flag, stg_loc = init_unprocessed_folder(stg_unprocessed_path, execution_timestamp)
+        partition_loc = init_partitioned_folder(stg_partitioned_path, execution_timestamp)
 
         if compact_flag:
             #========================================================================
@@ -110,13 +121,13 @@ def main(logger_object:logging.Logger):
             # READ THE COMPACT JSON FILE ALREADY SAVED IN DISK
             #==================================================
             logger_object.info("READ already COMPACT json file with all the collected data records from the latest LANDING folder.")
-            json_file = glob.glob("{0}/*.json".format(stg_loc))
-            df = pl.read_json(json_file[0])
+            df = pl.read_ndjson(retrieve_latest_modified_file(stg_loc)).head(1_000)
         
-        if latest_date_modified_lnd_folder != latest_lnd_date: 
+        if latest_date_modified_lnd_folder != latest_lnd_date:
             processed_dict = {
                 "latest_lnd_folder":lnd_path.split('/')[-1],
                 "latest_unprocessed_folder":stg_loc.split('/')[-1],
+                "status": "unprocessed",
                 "execution_dt": execution_timestamp
             }
             update_processed_metadata_file(checkpoint_file, processed_dict)
@@ -124,104 +135,101 @@ def main(logger_object:logging.Logger):
         #========================================================
         # CLEANING / PREPROCESSING  RAW DATA
         #========================================================
-        #===========================
-        # 1. FIX DATA TYPES
-        #===========================
-        cast_str = pl.Utf8
-        cast_categ = pl.Categorical
-        cast_int = pl.Int64
-        cast_float = pl.Float64
-        dt_format = "%Y-%m-%dT%H:%M:%S.000"
+        try:
+            #===========================
+            # 1. FIX DATA TYPES
+            #===========================
+            cast_str = pl.Utf8
+            cast_categ = pl.Categorical
+            cast_int = pl.Int64
+            cast_float = pl.Float64
+            dt_format = "%Y-%m-%dT%H:%M:%S.000"
 
-        dtype_map = {
-            "tpep_pickup_datetime": "datetime",
-            "tpep_dropoff_datetime": "datetime",
-            "pulocationid": cast_str,
-            "dolocationid": cast_str,
-            "trip_distance": cast_float,
-            "fare_amount": cast_float,
-            "extra": cast_float,
-            "mta_tax": cast_float,
-            "tolls_amount": cast_float,
-            "improvement_surcharge": cast_float
-        }
-        df = fix_data_type(df, dtype_map, dt_format)
+            dtype_map = {
+                "tpep_pickup_datetime": "datetime",
+                "tpep_dropoff_datetime": "datetime",
+                "pulocationid": cast_str,
+                "dolocationid": cast_str,
+                "trip_distance": cast_float,
+                "fare_amount": cast_float,
+                "extra": cast_float,
+                "mta_tax": cast_float,
+                "tolls_amount": cast_float,
+                "improvement_surcharge": cast_float
+            }
+            df = fix_data_type(df, dtype_map, dt_format)
 
-        # ==================================================
-        # 2. REMOVE ROWS NOT FOLLOWING GENERAL COLUMN RULES
-        # ==================================================
-        # Rows with pickup, dropoff datetimes after/before dataset year
-        cols = ["tpep_pickup_datetime", "tpep_dropoff_datetime"]
-        dataset_year = datetime.now()
-        start_of_time = datetime(1970,1,1)
-        df = remove_abnormal_dates(df, cols, dataset_year, start_of_time, logger_object)
+            # ==================================================
+            # 2. REMOVE ROWS NOT FOLLOWING GENERAL COLUMN RULES
+            # ==================================================
+            # Rows with pickup, dropoff datetimes after/before dataset year
+            cols = ["tpep_pickup_datetime", "tpep_dropoff_datetime"]
+            dataset_year = datetime.now()
+            start_of_time = datetime(1970,1,1)
+            df = remove_abnormal_dates(df, cols, dataset_year, start_of_time, logger_object)
 
-        # Rows with numerical negative values (float columns)
-        cols = ["fare_amount", "tolls_amount", "extra", "mta_tax", "improvement_surcharge", "trip_distance"]
-        df = remove_negative_charges(df, cols, logger_object)
+            # Rows with numerical negative values (float columns)
+            cols = ["fare_amount", "tolls_amount", "extra", "mta_tax", "improvement_surcharge", "trip_distance"]
+            df = remove_negative_charges(df, cols, logger_object)
 
-        # Rows with equal pickup == dropoff datetimes or pickup date > dropoff date
-        df = remove_equal_pickup_dropoff_times(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", logger_object)
+            # Rows with equal pickup == dropoff datetimes or pickup date > dropoff date
+            df = remove_equal_pickup_dropoff_times(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", logger_object)
 
-        # Compute the number of null records per column
-        df_nulls = df.select(pl.all().is_null().sum()).to_dicts()[0]
-        null_column_names = [k for k, v in df_nulls.items() if v > 0]
-        logger_object.info("Column names with null values: {0}".format(null_column_names))
+            # Compute the number of null records per column
+            df_nulls = df.select(pl.all().is_null().sum()).to_dicts()[0]
+            null_column_names = [k for k, v in df_nulls.items() if v > 0]
+            logger_object.info("Column names with null values: {0}".format(null_column_names))
 
-        # ==================================================
-        # 3. FEATURE ENGINEERING
-        # ==================================================
-        df = feature_engineer_trip_duration(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_duration")
-        print(df.select(pl.col("trip_duration")).head(10))
+            # ==================================================
+            # 3. FEATURE ENGINEERING
+            # ==================================================
+            df = feature_engineer_trip_duration(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_duration")
 
-        hour_tuple = [("tpep_pickup_datetime", "pickup"), ("tpep_dropoff_datetime", "dropoff")]
-        df = feature_engineer_trip_hour(df, hour_tuple)
-        
-        daytime_mapper = {"Rush-Hour": 1, "Overnight": 2, "Daytime": 3}
-        daytime_tuple = [("pickup_hour", "pickup"), ("dropoff_hour", "dropoff")]
-        df = feature_engineer_trip_daytime(df, daytime_mapper, daytime_tuple)
-        print(df.select(pl.col("pickup_daytime")).head(10))
-        print(df.shape)
+            hour_tuple = [("tpep_pickup_datetime", "pickup"), ("tpep_dropoff_datetime", "dropoff")]
+            df = feature_engineer_trip_hour(df, hour_tuple)
+            
+            daytime_mapper = {"Rush-Hour": 1, "Overnight": 2, "Daytime": 3}
+            daytime_tuple = [("pickup_hour", "pickup"), ("dropoff_hour", "dropoff")]
+            df = feature_engineer_trip_daytime(df, daytime_mapper, daytime_tuple)
 
-        exit()
-        # ==================================================
-        # 4. ENRICH DATA WITH NYC ZONE NAMES
-        # ==================================================
-        relative_path = "{0}/data/geospatial/".format(application_path)
-        df_geo = pl.read_json(retrieve_latest_modified_file(relative_path, False))
-        print(df_geo.head())
+            df = feature_engineer_trip_distance(df, "trip_distance")
 
-        merged_data = pl.DataFrame([])
-        geo_cols = ["objectid", "zone"]
+            cost_cols = ["fare_amount", "extra", "mta_tax", "tolls_amount", "improvement_surcharge"]
+            df = feature_engineer_trip_cost(df, cost_cols)
 
-        # Merge on PULocationID
-        merged_data = df.join(df_geo.select(geo_cols), left_on=pl.col("pulocationid"), right_on=pl.col("objectid"), how='left')
-        merged_data = merged_data.rename({"zone": "puzone"})
+            # ==================================================
+            # 4. CREATE THE PARTITION COLUMN - PARTITION_DT
+            # ==================================================
+            df = df.with_columns(
+                pl.col("tpep_pickup_datetime").dt.strftime(format="%Y%m").alias("partition_dt")
+            )
+            # ==============================================================
+            # 5. SAVE THE PREPROCESSED DATA OF TAXI TRIPS TO PARQUET FILES
+            # ==============================================================
+            logger_object.info("Start saving table to partitions")
+            start_time = time.time()
+            df.write_parquet(
+                partition_loc,
+                compression="zstd",
+                use_pyarrow=True,
+                pyarrow_options={
+                    "partition_cols": ["partition_dt"],
+                    # "partition_cols": ["pulocationid", "partition_dt"],
+                    "existing_data_behavior": "overwrite_or_ignore"
+                }
+            )
+            end_time = time.time()
+            print(f"Execution time: {timedelta(end_time-start_time)}")
+            logger_object.info("Finished saving table to partitions")
+            processing_completed:bool = True
+        except Exception as e:
+            processing_completed:bool = False
+            logger_object.error(e)
+            return
 
-        # Merge on DOLocationID
-        merged_data = merged_data.join(df_geo.select(geo_cols), left_on=pl.col("dolocationid"), right_on=pl.col("objectid"), how='left')
-        merged_data = merged_data.rename({"zone": "dozone"})
-        print(merged_data.columns)
-        print(list(zip(merged_data.dtypes, merged_data.columns)))
-
-        # Re-Compute the number of null records per column
-        df_nulls = merged_data.select(pl.all().is_null().sum()).to_dicts()[0]
-        null_column_names = [k for k, v in df_nulls.items() if v > 0]
-        logger_object.info("Column names with null values: {0}".format(null_column_names))
-
-    # # #==================================================
-    # # WRITE PROCESSED TABLE TO JSON
-    # # #==================================================
-    # write_df_toJSON("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), merged_data, "yellow_taxi_trip_processed_data", logger_object)
-    # write_df_toCSV("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), merged_data, "yellow_taxi_trip_processed_data", logger_object)
-
-    # # Shuffle the dataframe and filter top 200_000 rows
-    # merged_data_shuffled = merged_data.select(pl.col("*").shuffle(123))
-    # merged_data_shuffled = merged_data_shuffled.head(samples_value)
-    # write_df_toJSON("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), merged_data_shuffled, "yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
-    # write_df_toCSV("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), merged_data_shuffled, "yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
-
-    # logger_object.info("ENRICHMENT COMPLETED - Geospatial data imported to dataframe.")
+        if processing_completed:
+            print("here")
+            update_processed_metadata_file(checkpoint_file, None, latest_unprocessed_date)
 
 if __name__ == "__main__":
     project_folder = "batch_processing"
