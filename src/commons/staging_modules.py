@@ -233,6 +233,24 @@ def feature_engineer_trip_cost(df:pl.DataFrame, cols:list) -> pl.DataFrame:
     )
     return df
 
+def feature_engineer_nearest_hour_quarter(df:pl.DataFrame, col:str) -> pl.DataFrame:
+    target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+        pl.col(target_col).dt.truncate("15m", use_earliest=True).dt.strftime('%H:%M').cast(pl.Utf8).alias(f"{col}_quarter")
+    )
+    return df
+
+def feature_engineer_time_to_seconds(df:pl.DataFrame, col:str):
+    target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+            pl.col(target_col).dt.date().cast(pl.Datetime).alias(f'{col}_month_start')
+        ).with_columns(
+        (
+            (pl.col(target_col) - pl.col(f'{col}_month_start')).dt.minutes()
+        ).alias(f'{col}_seconds')
+    )
+    return df
+
 # ==================================================
 # GEOSPATIAL DATA PROCESSING MODULES
 # ==================================================
@@ -309,3 +327,25 @@ def enrich_partition_samples(partition:str, mapping_names:list, df_geo:pl.DataFr
                 }
             )
     # return merged_batch
+
+# =====================================================
+# CATEGORICAL DATA ENCODING TO NUMERIC REPRESENTATIONS
+# =====================================================
+
+def one_hot_encode_daytime(df:pl.DataFrame, col:str):
+    df = df.to_dummies(col, separator='_', drop_first=True)
+    return df
+
+def is_holiday(df:pl.DataFrame, col:str, us_holidays:list):
+    target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+        pl.col(target_col).cast(pl.Date).is_in(us_holidays).cast(pl.UInt8).alias(f"{col}_holiday")
+    )
+    return df
+
+def is_weekend(df:pl.DataFrame, col:str):
+    target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+        pl.col(target_col).dt.weekday().is_in([6,7]).cast(pl.UInt8).alias(f"{col}_weekend")
+    )
+    return df

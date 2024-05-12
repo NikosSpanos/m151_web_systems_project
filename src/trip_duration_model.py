@@ -1,21 +1,24 @@
 import polars as pl
 import numpy as np
 import xgboost as xgb
-import sys
 import logging
 import configparser
 import os
+import holidays
 import mlflow
 import mlflow.sklearn
-import setuptools
-import distutils
+from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from datetime import datetime
-sys.path.append('./src')
-from src.commons.custom_logger import setup_logger
-from staging_modules import retrieve_latest_modified_file, create_folder, write_df_toJSON, write_df_toCSV
-from ml_modules import remove_null_values, \
+from datetime import datetime, timedelta
+from commons.custom_logger import setup_logger
+from commons.staging_modules import feature_engineer_time_to_seconds, \
+    one_hot_encode_daytime, \
+    is_holiday, \
+    is_weekend, \
+    write_df_toJSON, \
+    write_df_toCSV
+from commons.ml_modules import remove_null_values, \
     label_encode_column, \
     train_linear_regressor, \
     train_randomforest_regressor, \
@@ -28,27 +31,89 @@ def duration_predictor(logger_object:logging.Logger):
     #========================================================
     # INITIALIZE MODULE VARIABLES
     #========================================================
+    #========================================================
+    # INITIALIZE MODULE VARIABLES
+    #========================================================
+    # Initialize configparser object
     config = configparser.ConfigParser()
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
     config.read(os.path.join(parent_dir, "config", "config.ini"))
-    application_path = config.get("settings", "application_path")
-    processed_data_dt = config.get("ml-settings", "processed_dt")
-    samples_str = config.get("ml-settings", "samples_str")
-    ml_model_name = config.get("ml-settings", "duration_model_name")
-    split_perce:float = float(config.get("ml-settings", "train_test_split_perce"))
-    relative_path:str = "{0}/data/staging/processed/{1}".format(application_path, processed_data_dt)
+    
+    # Import configuration variables
+    application_path:str = config.get("settings", "application_path")
+    stg_processed_loc:str = config.get("local-path-settings", "staging_processed_folder")
+    stg_processed_path:str = os.path.join(application_path, stg_processed_loc)
+    if not stg_processed_path:
+        logger_object.error("Path not found for processed and enriched tax-trips. Application willl exit...")
     execution_timestamp:datetime = datetime.now().strftime('%Y%m%d')
-    artifact_path:str = os.path.join(application_path, "model_artifacts", execution_timestamp)
-    create_folder(artifact_path)
+
+    # ml_model_name = config.get("ml-settings", "duration_model_name")
+    # split_perce:float = float(config.get("ml-settings", "train_test_split_perce"))
+    # artifact_path:str = os.path.join(application_path, "model_artifacts", execution_timestamp)
+    # create_folder(artifact_path)
+
     RANDOM_SEED:int = 42
     np.random.seed(RANDOM_SEED)
     
-    #========================================================
-    # READ THE PROCESSED-DATA JSON FILE FROM STAGING FOLDER
-    #========================================================
-    df = pl.read_json(retrieve_latest_modified_file(relative_path, True, samples_str))
+    #=========================================================================
+    # READ THE PROCESSED-DATA PARQUET FILES FROM STAGING FOLDER OF TAXI_TRIPS
+    #=========================================================================
+    partitions = Path(stg_processed_path).rglob("*.parquet")
+    for parquet_file in partitions:
+        df = pl.read_parquet(parquet_file, use_pyarrow=True)
+        break
+    # df = pl.read_parquet(stg_processed_path)
+    # print(df.shape)
+    # print(df.columns)
+
+    #=========================================================================
+    # FEATURE ENGINEER PICKUP, DROPOFF SECONDS FROM BEGINNING OF EACH MONTH
+    #=========================================================================
+    df = feature_engineer_time_to_seconds(df, 'pickup')
+    df = feature_engineer_time_to_seconds(df, 'dropoff')
+
+    #=========================================================================
+    # ONE-HOT ENCODE THE DAYTIME VALUES (RUSH-HOUR, OVERNIGHT, DAYTIME)
+    #=========================================================================
+    df = one_hot_encode_daytime(df, 'pickup_daytime')
+    df = one_hot_encode_daytime(df, 'dropoff_daytime')
+
+    #=========================================================================
+    # CREATE A BINARY COLUMN TO DENOTE HOLIDAY PICKUP-DROPOFF DATES
+    #=========================================================================
+    us_holidays = holidays.country_holidays('US', years=range((datetime.now() - timedelta(days=10*365)).year, datetime.now().date().year))
+    hol_dts = []
+    for date, name in sorted(us_holidays.items()):
+        hol_dts.append(date)
+    df = is_holiday(df, 'pickup', hol_dts)
+    df = is_holiday(df, 'dropoff', hol_dts)
+
+    #=========================================================================
+    # CREATE A BINARY COLUMN TO DENOTE IF PICKUP-DROPOFF DATES ARE WEEKENDS
+    #=========================================================================
+    df = is_weekend(df, 'pickup')
+    df = is_weekend(df, 'dropoff')
+
+    #========================================================================================================================
+    # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
+    #========================================================================================================================
+    
+
+    #=========================================================================
+    # ONE-HOT ENCODE PICKUP-DROP OFF ZONES
+    #=========================================================================
+
+
+    #=========================================================================
+    # FILTER OUT UBNORMAL KM/H (KILOMETERS PER HOUR - AVERAGE SPEED) RECORDS
+    #=========================================================================
+
+
+    print(df.select(["tpep_pickup_datetime", "tpep_dropoff_datetime", "pickup_weekend", "dropoff_weekend"]).filter(
+        pl.col("pickup_weekend").eq(1)).head())
     print(df.shape)
+    exit()
 
     #========================================================
     # COMPUTE NULL VALUES AND REMOVE THEM
@@ -172,8 +237,9 @@ def duration_predictor(logger_object:logging.Logger):
     logger_object.info("Completed training/evaluating {0}-model".format(ml_model_name))
 
 if __name__ == "__main__":
-    log_filename = "trip_duration_model/duration_recommendation_model_logs_{0}.txt".format(datetime.now().strftime('%Y_%m_%d_%H_%M'))
-    logger = setup_logger(log_filename)
+    project_folder = "duration_recommendation_model"
+    log_filename = f"{project_folder}_logs_{datetime.now().strftime('%Y_%m_%d_%H_%M')}.txt"
+    logger = setup_logger(project_folder, log_filename)
     try:
         duration_predictor(logger)
         logger.info("SUCCESS: duration recommendation model completed.")

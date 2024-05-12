@@ -38,14 +38,14 @@ def main(logger_object:logging.Logger):
     config.read(os.path.join(parent_dir, "config", "config.ini"))
     
     # Import configuration variables
-    application_path = config.get("settings", "application_path")
-    lnd_parent_loc = config.get("local-path-settings", "landing_folder")
-    stg_unprocessed_loc = config.get("local-path-settings", "staging_unprocessed_folder")
-    stg_partitioned_loc = config.get("local-path-settings", "stg_partitioned_loc")
-    stg_processed_loc = config.get("local-path-settings", "staging_processed_folder")
-    checkpoint_folder = os.path.join(application_path, config.get("local-path-settings", "metadata_folder"))
-    checkpoint_file = os.path.join(application_path, checkpoint_folder, config.get("local-path-settings", "metadata_processed_file"))
-    execution_timestamp = datetime.now().strftime('%Y%m%d')
+    application_path:str = config.get("settings", "application_path")
+    lnd_parent_loc:str = config.get("local-path-settings", "landing_folder")
+    stg_unprocessed_loc:str = config.get("local-path-settings", "staging_unprocessed_folder")
+    stg_partitioned_loc:str = config.get("local-path-settings", "stg_partitioned_loc")
+    stg_processed_loc:str = config.get("local-path-settings", "staging_processed_folder")
+    checkpoint_folder:str = os.path.join(application_path, config.get("local-path-settings", "metadata_folder"))
+    checkpoint_file:str = os.path.join(application_path, checkpoint_folder, config.get("local-path-settings", "metadata_processed_file"))
+    execution_timestamp:str = datetime.now().strftime('%Y%m%d')
     
     #========================================================
     # INITIALIZE STAGING STORAGE PATH (UNPROCESS + PROCESSED)
@@ -140,8 +140,6 @@ def main(logger_object:logging.Logger):
             # 1. FIX DATA TYPES
             #===========================
             cast_str = pl.Utf8
-            cast_categ = pl.Categorical
-            cast_int = pl.Int64
             cast_float = pl.Float64
             dt_format = "%Y-%m-%dT%H:%M:%S.000"
 
