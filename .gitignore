@@ -3,6 +3,8 @@
 /data/staging
 /data/geospatial
 /data/geo
+/data/*.parquet
+/data/*.csv
 /src/__pycache__
 /src/commons/__pycache__
 /mlruns

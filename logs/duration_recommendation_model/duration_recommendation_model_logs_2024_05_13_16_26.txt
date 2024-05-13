@@ -1,0 +1,1 @@
+2024-05-13 16:26:44 - INFO - Column names with null values: ['pu_zone', 'pu_polygon_area', 'pu_polygon_centroid', 'do_zone', 'do_polygon_area', 'do_polygon_centroid', 'pickup_coordinates', 'dropoff_coordinates']

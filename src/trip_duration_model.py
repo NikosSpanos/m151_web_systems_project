@@ -16,6 +16,8 @@ from commons.staging_modules import feature_engineer_time_to_seconds, \
     one_hot_encode_daytime, \
     is_holiday, \
     is_weekend, \
+    compute_coordinates, \
+    compute_centroid_distance, \
     write_df_toJSON, \
     write_df_toCSV
 from commons.ml_modules import remove_null_values, \
@@ -31,9 +33,6 @@ def duration_predictor(logger_object:logging.Logger):
     #========================================================
     # INITIALIZE MODULE VARIABLES
     #========================================================
-    #========================================================
-    # INITIALIZE MODULE VARIABLES
-    #========================================================
     # Initialize configparser object
     config = configparser.ConfigParser()
     current_dir = os.path.dirname(os.path.abspath(__file__))
@@ -42,10 +41,10 @@ def duration_predictor(logger_object:logging.Logger):
     
     # Import configuration variables
     application_path:str = config.get("settings", "application_path")
-    stg_processed_loc:str = config.get("local-path-settings", "staging_processed_folder")
-    stg_processed_path:str = os.path.join(application_path, stg_processed_loc)
-    if not stg_processed_path:
-        logger_object.error("Path not found for processed and enriched tax-trips. Application willl exit...")
+    # stg_processed_loc:str = config.get("local-path-settings", "staging_processed_folder")
+    # stg_processed_path:str = os.path.join(application_path, stg_processed_loc)
+    # if not stg_processed_path:
+    #     logger_object.error("Path not found for processed and enriched tax-trips. Application willl exit...")
     execution_timestamp:datetime = datetime.now().strftime('%Y%m%d')
 
     # ml_model_name = config.get("ml-settings", "duration_model_name")
@@ -59,13 +58,21 @@ def duration_predictor(logger_object:logging.Logger):
     #=========================================================================
     # READ THE PROCESSED-DATA PARQUET FILES FROM STAGING FOLDER OF TAXI_TRIPS
     #=========================================================================
-    partitions = Path(stg_processed_path).rglob("*.parquet")
-    for parquet_file in partitions:
-        df = pl.read_parquet(parquet_file, use_pyarrow=True)
-        break
+    # partitions = Path(stg_processed_path).rglob("*.parquet")
+    # for parquet_file in partitions:
+    #     df = pl.read_parquet(parquet_file, use_pyarrow=True)
+    #     break
     # df = pl.read_parquet(stg_processed_path)
     # print(df.shape)
     # print(df.columns)
+
+    df = pl.read_parquet("/home/nspanos/external_projects/m151_web_systems_project/data/93ae16fe18964d3e8b375273ff53e130-0.parquet", use_pyarrow=True).head(10_000)
+    
+    #========================================================
+    # REMOVE NULL VALUES FROM COLUMNS PU_ZONE, DO_ZONE
+    #========================================================
+    df = df.drop_nulls(["pu_zone", "do_zone"]) # during data exploration, identified location ids [264, 265] with no available data from the geospatial sample.
+    print(df.shape)
 
     #=========================================================================
     # FEATURE ENGINEER PICKUP, DROPOFF SECONDS FROM BEGINNING OF EACH MONTH
@@ -98,34 +105,24 @@ def duration_predictor(logger_object:logging.Logger):
     #========================================================================================================================
     # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
     #========================================================================================================================
-    
+    df = compute_coordinates(df, 'pickup') #generate pickup_coordinates
+    df = compute_coordinates(df, 'dropoff')
+    df = df.with_columns(
+        pl.struct(['pickup_coordinates', 'dropoff_coordinates']) \
+        .map_elements(lambda x: compute_centroid_distance(x['pickup_coordinates'], x['dropoff_coordinates']), return_dtype=pl.Float32).alias("centroid_distance")
+    )
 
     #=========================================================================
-    # ONE-HOT ENCODE PICKUP-DROP OFF ZONES
+    # ONE-HOT ENCODE PICKUP-DROPOFF ZONES
     #=========================================================================
 
 
     #=========================================================================
     # FILTER OUT UBNORMAL KM/H (KILOMETERS PER HOUR - AVERAGE SPEED) RECORDS
     #=========================================================================
+    
 
-
-    print(df.select(["tpep_pickup_datetime", "tpep_dropoff_datetime", "pickup_weekend", "dropoff_weekend"]).filter(
-        pl.col("pickup_weekend").eq(1)).head())
-    print(df.shape)
     exit()
-
-    #========================================================
-    # COMPUTE NULL VALUES AND REMOVE THEM
-    #========================================================
-    # print(df.select(pl.col(["pulocationid", "dolocationid", "puzone", "dozone"])).filter(pl.col("puzone").is_null())) 
-    # print(df.select(pl.col(["pulocationid", "dolocationid", "puzone", "dozone"])).filter(pl.col("dozone").is_null()))
-    df_nulls = df.select(pl.col(["puzone", "dozone"]).is_null().sum()).to_dicts()[0]
-    null_column_names = [(k,v) for k, v in df_nulls.items() if v > 0]
-    logger_object.info("Columns with null values (col, value): {0}".format(null_column_names))
-    remove_null_from = ["puzone", "dozone"]
-    df = remove_null_values(df, remove_null_from)
-    print(df.shape)
     write_df_toJSON("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
     write_df_toCSV("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
 

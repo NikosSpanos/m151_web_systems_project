@@ -1,0 +1,4 @@
+2024-05-13 15:53:10 - ERROR - did not expect value <bound method Expr.unique of <polars.expr.expr.Expr object at 0x7f5247701d90>> of type 'method'
+
+Try disambiguating with `lit` or `col`.
+2024-05-13 15:53:10 - ERROR - FAIL: duration recommendation model failed.

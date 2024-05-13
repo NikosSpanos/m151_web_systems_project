@@ -11,6 +11,7 @@ from typing import Tuple, Optional, Literal
 from multiprocessing import Pool
 from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely import wkt
+from geopy.distance import geodesic
 
 def md5_hashing(value):
     return hashlib.md5(value.encode()).hexdigest()
@@ -289,11 +290,36 @@ def compute_geo_areas(multipolygons:MultiPolygon) -> float:
 def compute_polygon_center(multipolygons:MultiPolygon) -> Point:
     return wkt.loads(multipolygons).centroid.wkt
 
-def compute_longitute(centroid_value:Point):
+def compute_longitude(centroid_value:Point):
     return wkt.loads(centroid_value).x
 
 def compute_latitude(centroid_value:Point):
     return wkt.loads(centroid_value).y
+
+def compute_coordinates(df:pl.DataFrame, col:str):
+    target_col:str = 'pu_polygon_centroid' if col == 'pickup' else 'do_polygon_centroid'
+    target_lat:str = f"{col}_latitude"
+    target_lng = f"{col}_longitude"
+    df = df.with_columns(
+        pl.col(target_col).map_elements(compute_longitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lng)
+    ).with_columns(
+        pl.col(target_col).map_elements(compute_latitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lat)
+    ).with_columns(
+        pl.struct([target_lat, target_lng]).alias(f"{col}_coordinates")
+    ).drop(target_lat, target_lng)
+    return df
+
+def compute_centroid_distance(pu_coordinates:dict, do_coordinates:dict):
+    if (pu_coordinates["pickup_latitude"]) and (pu_coordinates["pickup_longitude"]) and (do_coordinates["dropoff_latitude"]) and (do_coordinates["dropoff_longitude"]):
+        centroid_distance = geodesic(
+            (pu_coordinates["pickup_latitude"], pu_coordinates["pickup_longitude"]),
+            (do_coordinates["dropoff_latitude"], do_coordinates["dropoff_longitude"])
+        ).kilometers
+    else:
+        print(pu_coordinates)
+        print(do_coordinates)
+        centroid_distance = 0.0
+    return centroid_distance
 
 # ==================================================
 # DATA ENRICHMENT
