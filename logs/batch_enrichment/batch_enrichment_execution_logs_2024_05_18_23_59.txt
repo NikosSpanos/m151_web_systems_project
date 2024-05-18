@@ -1,0 +1,4 @@
+2024-05-18 23:59:06 - INFO - Staging path: /home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips/20240518 already exists. Program will continue.
+2024-05-18 23:59:06 - INFO - No new records to save
+2024-05-18 23:59:06 - INFO - DATA ENRICHMENT FINISHED - Taxi trips enriched with geospatial data. (Total execution time = 00:00:000000)
+2024-05-18 23:59:06 - INFO - SUCCESS: Batch processing/cleaning/feature-engineering completed.

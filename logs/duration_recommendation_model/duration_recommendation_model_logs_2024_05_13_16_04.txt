@@ -1,2 +1,0 @@
-2024-05-13 16:04:27 - ERROR - dolocationid
-2024-05-13 16:04:27 - ERROR - FAIL: duration recommendation model failed.

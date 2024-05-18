@@ -1,6 +1,0 @@
-2024-05-13 17:52:10 - INFO - Column names with null values: []
-2024-05-13 17:52:12 - ERROR - puzone
-
-Error originated just after this operation:
-DF ["tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_distance", "pulocationid"]; PROJECT */35 COLUMNS; SELECTION: "None"
-2024-05-13 17:52:12 - ERROR - FAIL: duration recommendation model failed.

@@ -1,6 +1,0 @@
-2024-05-13 16:03:14 - ERROR - pulocationid
-2024-05-13 16:03:14 - ERROR - FAIL: duration recommendation model failed.
-2024-05-13 16:03:50 - ERROR - cannot compare utf-8 with numeric data
-2024-05-13 16:03:50 - ERROR - FAIL: duration recommendation model failed.
-2024-05-13 16:03:56 - ERROR - cannot compare utf-8 with numeric data
-2024-05-13 16:03:56 - ERROR - FAIL: duration recommendation model failed.
