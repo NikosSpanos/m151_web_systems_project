@@ -5,6 +5,7 @@ import polars as pl
 import os
 import logging
 import json
+import numpy as np
 from pathlib import Path
 from datetime import datetime
 from typing import Tuple, Optional, Literal
@@ -95,7 +96,7 @@ def get_latest_partitioned_folder(stg_path:str, logging_object:logging.Logger) -
         logging_object.error("Partition directory is empty. Please verify that the data_preprocessing.py has been executed first.")
         return
 
-def daytime_value(hour_value):
+def daytime_value(hour_value:int):
     if (hour_value in range(7,11)) or (hour_value in range(16,20)):
         return "Rush-Hour"
     elif hour_value in [20,21,22,23,0,1,2,3,4,5,6]:
@@ -172,7 +173,7 @@ def remove_abnormal_dates(df:pl.DataFrame, cols:list, dataset_year:datetime, sta
         above_current_fyear = df.filter(pl.col(col).dt.year().gt(dataset_year.year))
         before_start_of_time = df.filter(pl.col(col).dt.year().lt(start_of_time.year))
         logger_obj.info("{0} dates after current fiscal year ({1}): {2}".format(col, dataset_year.year, above_current_fyear.height))
-        logger_obj.info("{0} dates before current fiscal year ({1}): {2}".format(col, dataset_year.year, before_start_of_time.height))
+        logger_obj.info("{0} dates before start of Unix time (1970-01-01) ({1}): {2}".format(col, start_of_time.year, before_start_of_time.height))
         # Remove rows with year greater/lower than the dataset year
         df = df.filter(
             (pl.col(col).dt.year().le(dataset_year.year)) & (pl.col(col).dt.year().gt( start_of_time.year ))
@@ -217,7 +218,8 @@ def feature_engineer_trip_hour(df:pl.DataFrame, cols:list) -> pl.DataFrame:
 def feature_engineer_trip_daytime(df:pl.DataFrame, daytime_mapper:list, cols:tuple) -> pl.DataFrame:
     for col in cols:
         df = df.with_columns(
-            pl.col(col[0]).map_elements(daytime_value, return_dtype=pl.Utf8).map_dict(daytime_mapper).cast(pl.Int64).alias("{0}_daytime".format(col[1]))
+            # pl.col(col[0]).map_elements(daytime_value, return_dtype=pl.Utf8).map_dict(daytime_mapper).cast(pl.Int64).alias("{0}_daytime".format(col[1]))
+            pl.col(col[0]).dt.hour().map_elements(daytime_value, return_dtype=pl.Utf8).map_dict(daytime_mapper).cast(pl.Int64).alias("{0}_daytime".format(col[1]))
         )
     return df
 
@@ -296,63 +298,147 @@ def compute_longitude(centroid_value:Point):
 def compute_latitude(centroid_value:Point):
     return wkt.loads(centroid_value).y
 
-def compute_coordinates(df:pl.DataFrame, col:str):
+# def compute_coordinates(df:pl.DataFrame, col:str):
+#     target_col:str = 'pu_polygon_centroid' if col == 'pickup' else 'do_polygon_centroid'
+#     target_lat:str = f"{col}_latitude"
+#     target_lng = f"{col}_longitude"
+#     df = df.with_columns(
+#         pl.col(target_col).map_elements(compute_longitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lng)
+#     ).with_columns(
+#         pl.col(target_col).map_elements(compute_latitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lat)
+#     ).with_columns(
+#         pl.struct([target_lat, target_lng]).alias(f"{col}_coordinates")
+#     ).drop(target_lat, target_lng)
+#     return df
+
+def compute_coordinates(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
     target_col:str = 'pu_polygon_centroid' if col == 'pickup' else 'do_polygon_centroid'
-    target_lat:str = f"{col}_latitude"
-    target_lng = f"{col}_longitude"
+    location_data:str = f'{col}_location_cleaned'
+    coordinates:str = f'{col}_coordinates'
     df = df.with_columns(
-        pl.col(target_col).map_elements(compute_longitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lng)
+        pl.col(target_col).str.replace_all(r'POINT \(|\)', '').alias(location_data)
     ).with_columns(
-        pl.col(target_col).map_elements(compute_latitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lat)
-    ).with_columns(
-        pl.struct([target_lat, target_lng]).alias(f"{col}_coordinates")
-    ).drop(target_lat, target_lng)
+        pl.col(location_data).str.split(' ').alias(coordinates)
+    ).drop(location_data)
     return df
 
-def compute_centroid_distance(pu_coordinates:dict, do_coordinates:dict):
-    if (pu_coordinates["pickup_latitude"]) and (pu_coordinates["pickup_longitude"]) and (do_coordinates["dropoff_latitude"]) and (do_coordinates["dropoff_longitude"]):
-        centroid_distance = geodesic(
-            (pu_coordinates["pickup_latitude"], pu_coordinates["pickup_longitude"]),
-            (do_coordinates["dropoff_latitude"], do_coordinates["dropoff_longitude"])
-        ).kilometers
-    else:
-        print(pu_coordinates)
-        print(do_coordinates)
-        centroid_distance = 0.0
-    return centroid_distance
+# def compute_centroid_distance(pu_coordinates:dict, do_coordinates:dict):
+#     if (pu_coordinates["pickup_latitude"]) and (pu_coordinates["pickup_longitude"]) and (do_coordinates["dropoff_latitude"]) and (do_coordinates["dropoff_longitude"]):
+#         centroid_distance = geodesic(
+#             (pu_coordinates["pickup_latitude"], pu_coordinates["pickup_longitude"]),
+#             (do_coordinates["dropoff_latitude"], do_coordinates["dropoff_longitude"])
+#         ).kilometers
+#     else:
+#         print(pu_coordinates)
+#         print(do_coordinates)
+#         centroid_distance = 0.0
+#     return centroid_distance
+
+def compute_haversine_disntance(df:pl.LazyFrame, R:np.float64, coordinates:dict) -> pl.LazyFrame:
+    pl.Config.set_fmt_float("full")
+    multiplier:float = np.pi/180
+    rad_lat1:pl.Expr = (pl.col(coordinates["pickup_points"]).list.last().cast(pl.Float64) * (multiplier))
+    rad_lat2:pl.Expr = (pl.col(coordinates["dropoff_points"]).list.last().cast(pl.Float64) * (multiplier))
+    rad_lng1:pl.Expr = (pl.col(coordinates["pickup_points"]).list.first().cast(pl.Float64) * (multiplier))
+    rad_lng2:pl.Expr = (pl.col(coordinates["dropoff_points"]).list.first().cast(pl.Float64) * (multiplier))
+    haversin:pl.Expr = (
+        (rad_lat2 - rad_lat1).truediv(2).sin().pow(2) +
+        ((rad_lat1.cos() * rad_lat2.cos()) * (rad_lng2 - rad_lng1).truediv(2).sin().pow(2))
+    ).cast(pl.Float64)
+    df = df.with_columns(
+        (
+            2 * R * (haversin.sqrt().arcsin())
+        ).cast(pl.Float64).alias("haversine_centroid_distance")
+    )
+    return df
 
 # ==================================================
 # DATA ENRICHMENT
 # ==================================================
-def enrich_partition_samples(partition:str, mapping_names:list, df_geo:pl.DataFrame, stg_processed_path:str):
-    items = Path(partition).rglob("*.parquet")
-    for parquet_file in items:
-        # df_partition = pl.read_parquet(os.path.join(partition, "*.parquet"))
-        partitions = dict(part.split('=') for part in parquet_file.parts if '=' in part)
-        for key, value in partitions.items():
-            df_partition= pl.read_parquet(parquet_file).with_columns(pl.lit(value, dtype=pl.Utf8).alias(key))
-            merged_batch = df_partition.join(
-                df_geo,
-                left_on=pl.col("pulocationid"),
-                right_on=pl.col("objectid"),
-                how='left'
-            ).rename(mapping_names[0])
-            merged_batch = merged_batch.join(
-                df_geo,
-                left_on=pl.col("dolocationid"),
-                right_on=pl.col("objectid"),
-                how='left'
-            ).rename(mapping_names[1])
-            merged_batch.write_parquet(
-                stg_processed_path,
-                compression="zstd",
-                use_pyarrow=True,
-                pyarrow_options={
-                    "partition_cols": ["partition_dt"],
-                    "existing_data_behavior": "overwrite_or_ignore"
-                }
-            )
-    # return merged_batch
+def read_parquet_files(partition_path:str, stg_path:str) -> pl.LazyFrame:
+    files = glob.glob(os.path.join(stg_path, partition_path.split('/')[-1], "*.parquet"))
+    if files:
+        return pl.concat([pl.scan_parquet(file) for file in files])
+    else:
+        return pl.DataFrame([])
+    
+# def enrich_partition_samples(partition:str, mapping_names:list, df_geo:pl.LazyFrame, stg_processed_path:str, logger:logging.Logger):
+def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Logger]):
+    partition, mapping_names, geo_path, stg_processed_path, logger = args
+    parquet_files:str = os.path.join(partition, "*.parquet")  # Read all the parquet files under a specific partition
+    print(f"Reading all files under path: {partition}")
+    df_partition:pl.LazyFrame= pl.scan_parquet(parquet_files).with_columns(pl.lit(partition.split("=")[1], dtype=pl.Utf8).alias("partition_dt"))
+    geospatial_cols:list = ["objectid", "zone", "polygon_area", "polygon_centroid"]
+    df_geo:pl.LazyFrame = pl.scan_ndjson(geo_path).select(*geospatial_cols)
+    merged_batch = df_partition.join(
+        df_geo,
+        left_on=pl.col("pulocationid"),
+        right_on=pl.col("objectid"),
+        how='left'
+    ).rename(mapping_names[0])
+    merged_batch = merged_batch.join(
+        df_geo,
+        left_on=pl.col("dolocationid"),
+        right_on=pl.col("objectid"),
+        how='left'
+    ).rename(mapping_names[1])
+    #========================================================
+    # REMOVE NULL VALUES FROM COLUMNS PU_ZONE, DO_ZONE
+    #========================================================
+    merged_batch = merged_batch.drop_nulls(["pu_zone", "do_zone"])
+    # during data exploration, identified location ids [264, 265] with no available data from the geospatial sample.
+    
+    #========================================================================================================================
+    # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
+    #========================================================================================================================
+    merged_batch = compute_coordinates(merged_batch, 'pickup') #generate pickup_coordinates
+    merged_batch = compute_coordinates(merged_batch, 'dropoff')
+    coordinates:dict = {
+        "pickup_points": "pickup_coordinates",
+        "dropoff_points": "dropoff_coordinates"
+    }
+    merged_batch = compute_haversine_disntance(merged_batch, 6371.0087714150598, coordinates)
+    
+    #========================================================================================================================
+    # COMPUTE HASH KEYS FOR EACH RECORD TO SECURE THAT ONLY EXISTING RECORDS WILL BE SAVED.
+    #========================================================================================================================
+    merged_batch = merged_batch.with_columns(
+        pl.concat_str(["tpep_pickup_datetime", "pulocationid", "dolocationid", "trip_cost"]).hash(1234).alias("hashing_key")
+    )
+    existing_data = read_parquet_files(partition, stg_processed_path) #return tuple of boolean (True/False, existing_df)
+    if existing_data.width > 0:
+        #===========================
+        # DEDUPLICATION
+        #===========================
+        existing_hash_keys:pl.LazyFrame = existing_data.select(pl.col("hashing_key")).unique()
+        new_hash_keys:pl.LazyFrame = merged_batch.select(pl.col("hashing_key")).unique()
+        non_matching_indices:pl.DataFrame = new_hash_keys.join(existing_hash_keys, on="hashing_key", how="anti").collect()
+        if non_matching_indices.is_empty():
+            logger.info(f"No new records to save for partition {partition.split("/")[-1]}")
+            return
+        # Write ONLY the updated data if the STAGING directory has already stored parquet files.
+        updated_records = merged_batch.filter(pl.col("hashing_key").is_in(non_matching_indices["hashing_key"])).collect()
+        updated_records.write_parquet(
+            stg_processed_path,
+            compression="zstd",
+            use_pyarrow=True,
+            pyarrow_options={
+                "partition_cols": ["partition_dt"],
+                "existing_data_behavior": "overwrite_or_ignore"
+            }
+        )
+    else:
+        logger.info(f"Staging path: {os.path.join(stg_processed_path, partition.split('/')[-1])} is empty. Writing all collected data...")
+        # Write everything if the STAGING directory is empty.
+        merged_batch.collect().write_parquet(
+            stg_processed_path,
+            compression="zstd",
+            use_pyarrow=True,
+            pyarrow_options={
+                "partition_cols": ["partition_dt"],
+                "existing_data_behavior": "overwrite_or_ignore"
+            }
+        )
 
 # =====================================================
 # CATEGORICAL DATA ENCODING TO NUMERIC REPRESENTATIONS

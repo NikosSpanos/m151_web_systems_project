@@ -5,6 +5,7 @@ import logging
 import configparser
 import os
 import time
+import holidays
 from datetime import datetime, timedelta
 from commons.custom_logger import setup_logger
 from commons.staging_modules import init_stg_path, \
@@ -20,10 +21,12 @@ from commons.staging_modules import init_stg_path, \
     remove_negative_charges, \
     remove_equal_pickup_dropoff_times, \
     feature_engineer_trip_duration, \
-    feature_engineer_trip_hour, \
+    feature_engineer_time_to_seconds, \
     feature_engineer_trip_daytime, \
     feature_engineer_trip_distance, \
     feature_engineer_trip_cost, \
+    is_holiday, \
+    is_weekend, \
     retrieve_latest_modified_file
 
 def main(logger_object:logging.Logger):
@@ -69,8 +72,6 @@ def main(logger_object:logging.Logger):
     latest_lnd_date = datetime.strptime(lnd_path.split('/')[-1], '%Y%m%d').date()
     execute_processing:bool = False
 
-    print(latest_date_modified_lnd_folder)
-    print(latest_lnd_date)
     # exit()
     if latest_lnd_date > latest_date_modified_lnd_folder:
         logger_object.info(f"Process records for data collected on: {latest_lnd_date}")
@@ -121,7 +122,7 @@ def main(logger_object:logging.Logger):
             # READ THE COMPACT JSON FILE ALREADY SAVED IN DISK
             #==================================================
             logger_object.info("READ already COMPACT json file with all the collected data records from the latest LANDING folder.")
-            df = pl.read_ndjson(retrieve_latest_modified_file(stg_loc)).head(1_000)
+            df = pl.read_ndjson(retrieve_latest_modified_file(stg_loc))
         
         if latest_date_modified_lnd_folder != latest_lnd_date:
             processed_dict = {
@@ -158,42 +159,92 @@ def main(logger_object:logging.Logger):
             df = fix_data_type(df, dtype_map, dt_format)
 
             # ==================================================
-            # 2. REMOVE ROWS NOT FOLLOWING GENERAL COLUMN RULES
+            # 2. FEATURE ENGINEERING
             # ==================================================
-            # Rows with pickup, dropoff datetimes after/before dataset year
+
+            #=========================================================================
+            # FEATURE ENGINEER TRIP DURATION
+            #=========================================================================
+            df = feature_engineer_trip_duration(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_duration")
+
+            #=========================================================================
+            # FEATURE ENGINEER TIME OF DAY. GREATLY AFFECTS CHARGES.
+            #=========================================================================
+            daytime_mapper = {"Rush-Hour": 1, "Overnight": 2, "Daytime": 3}
+            daytime_tuple = [("tpep_pickup_datetime", "pickup"), ("tpep_dropoff_datetime", "dropoff")]
+            df = feature_engineer_trip_daytime(df, daytime_mapper, daytime_tuple)
+
+            #=========================================================================
+            # FEATURE ENGINEER TRIP DISTNACE FROM MILES TO KILOMETERS (KM)
+            #=========================================================================
+            df = feature_engineer_trip_distance(df, "trip_distance")
+
+            #=========================================================================
+            # FEATURE ENGINEER TOTAL TRIP COST BY ADDING/SUM RELEVANT FARES/CHARGES
+            #=========================================================================
+            cost_cols = ["fare_amount", "extra", "mta_tax", "tolls_amount", "improvement_surcharge"]
+            df = feature_engineer_trip_cost(df, cost_cols)
+
+            #=========================================================================
+            # FEATURE ENGINEER PICKUP, DROPOFF SECONDS FROM BEGINNING OF EACH MONTH
+            #=========================================================================
+            df = feature_engineer_time_to_seconds(df, 'pickup')
+            df = feature_engineer_time_to_seconds(df, 'dropoff')
+
+            #=========================================================================
+            # FEATURE ENGINEER A BINARY COLUMN TO DENOTE HOLIDAY PICKUP-DROPOFF DATES
+            #=========================================================================
+            us_holidays = holidays.country_holidays('US', years=range((datetime.now() - timedelta(days=10*365)).year, datetime.now().date().year))
+            hol_dts = []
+            for date, name in sorted(us_holidays.items()):
+                hol_dts.append(date)
+            df = is_holiday(df, 'pickup', hol_dts)
+            df = is_holiday(df, 'dropoff', hol_dts)
+
+            #=================================================================================
+            # FEATURE ENGINEER A BINARY COLUMN TO DENOTE IF PICKUP-DROPOFF DATES ARE WEEKENDS
+            #=================================================================================
+            df = is_weekend(df, 'pickup')
+            df = is_weekend(df, 'dropoff')
+
+            #=================================================================================
+            # FEATURE ENGINEER PICKUP QUARTERS OF THE DAY (1 IN 96 QUARTERS IN A DAY)
+            #=================================================================================
+            df = df.with_columns(
+                pickup_quarter = ( (pl.col('tpep_pickup_datetime').dt.hour() * 60 + pl.col('tpep_pickup_datetime').dt.minute())/15 ).floor().cast(pl.Int8)
+            )
+
+            # ==================================================
+            # 3. REMOVE ROWS NOT FOLLOWING GENERAL COLUMN RULES
+            # ==================================================
+            
+            #===========================================================================================================
+            # FILTER OUT ROWS WITH PICKUP-DROPOFF DATETIMES AFTER CURRETN YEAR OR BEFORE 1970-01-01 (BEGINNING OF TIME)
+            #===========================================================================================================
             cols = ["tpep_pickup_datetime", "tpep_dropoff_datetime"]
             dataset_year = datetime.now()
             start_of_time = datetime(1970,1,1)
             df = remove_abnormal_dates(df, cols, dataset_year, start_of_time, logger_object)
 
-            # Rows with numerical negative values (float columns)
+            #=========================================================================
+            # FILTER OUT ROWS WITH NEGATIVE NUMERICAL VALUES OF CHARGES/FARES
+            #=========================================================================
             cols = ["fare_amount", "tolls_amount", "extra", "mta_tax", "improvement_surcharge", "trip_distance"]
             df = remove_negative_charges(df, cols, logger_object)
 
-            # Rows with equal pickup == dropoff datetimes or pickup date > dropoff date
+            #==============================================================================================
+            # FILTER OUT ROWS WITH (EQUAL) PICKUP == DROPOFF DATETIMES (= 0 DURATION) AND PICKUP > DROPOFF
+            #==============================================================================================
             df = remove_equal_pickup_dropoff_times(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", logger_object)
 
-            # Compute the number of null records per column
-            df_nulls = df.select(pl.all().is_null().sum()).to_dicts()[0]
-            null_column_names = [k for k, v in df_nulls.items() if v > 0]
-            logger_object.info("Column names with null values: {0}".format(null_column_names))
-
-            # ==================================================
-            # 3. FEATURE ENGINEERING
-            # ==================================================
-            df = feature_engineer_trip_duration(df, "tpep_pickup_datetime", "tpep_dropoff_datetime", "trip_duration")
-
-            hour_tuple = [("tpep_pickup_datetime", "pickup"), ("tpep_dropoff_datetime", "dropoff")]
-            df = feature_engineer_trip_hour(df, hour_tuple)
-            
-            daytime_mapper = {"Rush-Hour": 1, "Overnight": 2, "Daytime": 3}
-            daytime_tuple = [("pickup_hour", "pickup"), ("dropoff_hour", "dropoff")]
-            df = feature_engineer_trip_daytime(df, daytime_mapper, daytime_tuple)
-
-            df = feature_engineer_trip_distance(df, "trip_distance")
-
-            cost_cols = ["fare_amount", "extra", "mta_tax", "tolls_amount", "improvement_surcharge"]
-            df = feature_engineer_trip_cost(df, cost_cols)
+            #=========================================================================
+            # FILTER OUT UBNORMAL KM/H (KILOMETERS PER HOUR - AVERAGE SPEED) RECORDS
+            #=========================================================================
+            df = df.with_columns(
+                average_speed = pl.col("trip_distance") / (pl.col("trip_duration")/60).cast(pl.Float32)
+            ).filter(
+                (pl.col("average_speed").gt(1)) & (pl.col("average_speed").lt(240))
+            )
 
             # ==================================================
             # 4. CREATE THE PARTITION COLUMN - PARTITION_DT
@@ -201,23 +252,41 @@ def main(logger_object:logging.Logger):
             df = df.with_columns(
                 pl.col("tpep_pickup_datetime").dt.strftime(format="%Y%m").alias("partition_dt")
             )
+
+            # ===========================================================
+            # 5. CREATE A HASH COLUMN FROM UNIQUE COMBINATION OF RECORDS
+            # ===========================================================
+            df = df.with_columns(
+                df.select(["tpep_pickup_datetime", "pulocationid", "dolocationid", "trip_cost"]).hash_rows(seed=1234).alias("hashing_key")
+            )
+            
+            # ==================================================
+            # 6. COMPUTE AND REPORT NULL VALUES PER COLUMN
+            # ==================================================
+            df_nulls = df.select(pl.all().is_null().sum()).to_dicts()[0]
+            null_column_names = [k for k, v in df_nulls.items() if v > 0]
+            logger_object.info("Column names with null values: {0}".format(null_column_names))
+            
             # ==============================================================
-            # 5. SAVE THE PREPROCESSED DATA OF TAXI TRIPS TO PARQUET FILES
+            # 7. SAVE THE PREPROCESSED DATA OF TAXI TRIPS TO PARQUET FILES
             # ==============================================================
             logger_object.info("Start saving table to partitions")
-            start_time = time.time()
+            start_time = time.perf_counter()
             df.write_parquet(
                 partition_loc,
                 compression="zstd",
                 use_pyarrow=True,
                 pyarrow_options={
                     "partition_cols": ["partition_dt"],
-                    # "partition_cols": ["pulocationid", "partition_dt"],
                     "existing_data_behavior": "overwrite_or_ignore"
                 }
             )
-            end_time = time.time()
-            print(f"Execution time: {timedelta(end_time-start_time)}")
+            end_time = time.perf_counter()
+            elapsed_time = end_time - start_time
+            hours, rem = divmod(elapsed_time, 3600)
+            minutes, seconds = divmod(rem, 60)
+            formatted_time = f"{int(hours):02}:{int(minutes):02}:{int(seconds):06}"
+            print(f"Execution time to write partition files: {formatted_time}")
             logger_object.info("Finished saving table to partitions")
             processing_completed:bool = True
         except Exception as e:
@@ -226,7 +295,6 @@ def main(logger_object:logging.Logger):
             return
 
         if processing_completed:
-            print("here")
             update_processed_metadata_file(checkpoint_file, None, latest_unprocessed_date)
 
 if __name__ == "__main__":

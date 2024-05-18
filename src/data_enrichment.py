@@ -5,7 +5,9 @@ import logging
 import configparser
 import os
 import time
-from datetime import datetime, timedelta
+from functools import partial
+from multiprocessing import Pool
+from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from commons.custom_logger import setup_logger
 from commons.staging_modules import init_stg_path, \
@@ -34,7 +36,7 @@ def main(logger_object:logging.Logger):
     #===================================================================
     # INITIALIZE STAGING PROCESSED PATH FOR STORING THE ENRICHED DATA
     #===================================================================
-    stg_processed_path = os.path.join(application_path, stg_processed_loc)
+    stg_processed_path = os.path.join(application_path, stg_processed_loc, execution_timestamp)
     init_stg_path(stg_processed_path, logger_object)
 
     #========================================================
@@ -60,7 +62,6 @@ def main(logger_object:logging.Logger):
     for suffix in ['pu_', 'do_']:
         rename_dict = {
             "zone": f"{suffix}zone",
-            # "multipolygons": f"{suffix}multipolygons",
             "polygon_area": f"{suffix}polygon_area",
             "polygon_centroid": f"{suffix}polygon_centroid",
         }
@@ -70,11 +71,10 @@ def main(logger_object:logging.Logger):
     # LOAD THE SAVED GEOSPATIAL DATA
     #=================================================================
     geospatial_data_storage = os.path.join(parent_dir, geospatial_data_folder)
-    # geospatial_cols = ["objectid", "zone", "multipolygons", "polygon_area", "polygon_centroid"]
-    geospatial_cols = ["objectid", "zone", "polygon_area", "polygon_centroid"]
-    df_geo = pl.read_ndjson(retrieve_latest_modified_file(geospatial_data_storage, "taxi_zones")).select(*geospatial_cols)
-    print(df_geo.head())
-    
+    # geospatial_cols:list = ["objectid", "zone", "polygon_area", "polygon_centroid"]
+    # df_geo = pl.scan_ndjson(retrieve_latest_modified_file(geospatial_data_storage, "taxi_zones")).select(*geospatial_cols)
+    geo_path:str = retrieve_latest_modified_file(geospatial_data_storage, "taxi_zones")
+
     #=================================================================
     # EXECUTE DATA ENRICHMENT WITH GEOSPATIAL DATA USING THREADING
     #=================================================================
@@ -93,15 +93,28 @@ def main(logger_object:logging.Logger):
     #     data = enrich_partition_samples(partition, mapping_names, df_geo)
     #     print(data.columns)
     # exit()
+    
     # With Threading
     # Number of threads to use
-    num_threads = 2
-
+    # num_threads = 1
+    num_processes = 3
     start_time = time.perf_counter()
-    with ThreadPoolExecutor(max_workers=num_threads) as executor:
-        future_to_partition = [executor.submit(enrich_partition_samples, partition, mapping_names, df_geo, stg_processed_path) for partition in partitions]
-    end_time = time.perf_counter()
-    logger_object.info(f"DATA ENRICHMENT FINISHED - Taxi trips enriched with geospatial data. (Total execution time = {end_time - start_time})")
+    try:
+        # with ThreadPoolExecutor(max_workers=num_threads) as executor:
+        #     future_to_partition = [executor.submit(enrich_partition_samples, partition, mapping_names, df_geo, stg_processed_path, logger_object) for partition in partitions]
+        
+        # task_args = [(partition, mapping_names, df_geo, stg_processed_path, logger_object) for partition in partitions]
+        task_args:list = [(partition, mapping_names, geo_path, stg_processed_path, logger_object) for partition in partitions]
+        with Pool(num_processes) as pool:
+            pool.map(enrich_partition_samples, task_args)
+        
+        end_time = time.perf_counter()
+        elapsed_time = end_time - start_time
+        hours, rem = divmod(elapsed_time, 3600)
+        minutes, seconds = divmod(rem, 60)
+        logger_object.info(f"DATA ENRICHMENT FINISHED - Taxi trips enriched with geospatial data. (Total execution time = {int(hours):02}:{int(minutes):02}:{int(seconds):06})")
+    except Exception as e:
+        logger_object.error(e)
 
 if __name__ == "__main__":
     project_folder = "batch_enrichment"

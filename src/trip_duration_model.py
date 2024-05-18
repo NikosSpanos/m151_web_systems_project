@@ -41,10 +41,10 @@ def duration_predictor(logger_object:logging.Logger):
     
     # Import configuration variables
     application_path:str = config.get("settings", "application_path")
-    # stg_processed_loc:str = config.get("local-path-settings", "staging_processed_folder")
-    # stg_processed_path:str = os.path.join(application_path, stg_processed_loc)
-    # if not stg_processed_path:
-    #     logger_object.error("Path not found for processed and enriched tax-trips. Application willl exit...")
+    stg_processed_loc:str = config.get("local-path-settings", "staging_processed_folder")
+    stg_processed_path:str = os.path.join(application_path, stg_processed_loc)
+    if not stg_processed_path:
+        logger_object.error("Path not found for processed and enriched tax-trips. Application willl exit...")
     execution_timestamp:datetime = datetime.now().strftime('%Y%m%d')
 
     # ml_model_name = config.get("ml-settings", "duration_model_name")
@@ -59,26 +59,21 @@ def duration_predictor(logger_object:logging.Logger):
     # READ THE PROCESSED-DATA PARQUET FILES FROM STAGING FOLDER OF TAXI_TRIPS
     #=========================================================================
     # partitions = Path(stg_processed_path).rglob("*.parquet")
-    # for parquet_file in partitions:
-    #     df = pl.read_parquet(parquet_file, use_pyarrow=True)
-    #     break
-    # df = pl.read_parquet(stg_processed_path)
-    # print(df.shape)
-    # print(df.columns)
+    partitions = Path(stg_processed_path)
+    parquet_directories = [x for x in partitions.iterdir() if x.is_dir()]
+    # print(list(partitions))
+    # exit()
+    for parquet_dir in parquet_directories:
+        print(parquet_dir)
+        parquet_files = parquet_dir.rglob("*.parquet")
+        print(list(parquet_files))
+        break
+        df = pl.read_parquet(parquet_files, use_pyarrow=True).head(20_000)
 
-    df = pl.read_parquet("/home/nspanos/external_projects/m151_web_systems_project/data/93ae16fe18964d3e8b375273ff53e130-0.parquet", use_pyarrow=True).head(10_000)
     
-    #========================================================
-    # REMOVE NULL VALUES FROM COLUMNS PU_ZONE, DO_ZONE
-    #========================================================
-    df = df.drop_nulls(["pu_zone", "do_zone"]) # during data exploration, identified location ids [264, 265] with no available data from the geospatial sample.
+    print(df.columns)
     print(df.shape)
-
-    #=========================================================================
-    # FEATURE ENGINEER PICKUP, DROPOFF SECONDS FROM BEGINNING OF EACH MONTH
-    #=========================================================================
-    df = feature_engineer_time_to_seconds(df, 'pickup')
-    df = feature_engineer_time_to_seconds(df, 'dropoff')
+    # df = pl.read_parquet("/home/nspanos/external_projects/m151_web_systems_project/data/93ae16fe18964d3e8b375273ff53e130-0.parquet", use_pyarrow=True).head(10_000)
 
     #=========================================================================
     # ONE-HOT ENCODE THE DAYTIME VALUES (RUSH-HOUR, OVERNIGHT, DAYTIME)
@@ -86,41 +81,15 @@ def duration_predictor(logger_object:logging.Logger):
     df = one_hot_encode_daytime(df, 'pickup_daytime')
     df = one_hot_encode_daytime(df, 'dropoff_daytime')
 
-    #=========================================================================
-    # CREATE A BINARY COLUMN TO DENOTE HOLIDAY PICKUP-DROPOFF DATES
-    #=========================================================================
-    us_holidays = holidays.country_holidays('US', years=range((datetime.now() - timedelta(days=10*365)).year, datetime.now().date().year))
-    hol_dts = []
-    for date, name in sorted(us_holidays.items()):
-        hol_dts.append(date)
-    df = is_holiday(df, 'pickup', hol_dts)
-    df = is_holiday(df, 'dropoff', hol_dts)
-
-    #=========================================================================
-    # CREATE A BINARY COLUMN TO DENOTE IF PICKUP-DROPOFF DATES ARE WEEKENDS
-    #=========================================================================
-    df = is_weekend(df, 'pickup')
-    df = is_weekend(df, 'dropoff')
-
-    #========================================================================================================================
-    # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
-    #========================================================================================================================
-    df = compute_coordinates(df, 'pickup') #generate pickup_coordinates
-    df = compute_coordinates(df, 'dropoff')
-    df = df.with_columns(
-        pl.struct(['pickup_coordinates', 'dropoff_coordinates']) \
-        .map_elements(lambda x: compute_centroid_distance(x['pickup_coordinates'], x['dropoff_coordinates']), return_dtype=pl.Float32).alias("centroid_distance")
-    )
-
-    #=========================================================================
-    # ONE-HOT ENCODE PICKUP-DROPOFF ZONES
-    #=========================================================================
-
-
-    #=========================================================================
-    # FILTER OUT UBNORMAL KM/H (KILOMETERS PER HOUR - AVERAGE SPEED) RECORDS
-    #=========================================================================
-    
+    # #========================================================================================================================
+    # # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
+    # #========================================================================================================================
+    # df = compute_coordinates(df, 'pickup') #generate pickup_coordinates
+    # df = compute_coordinates(df, 'dropoff')
+    # df = df.with_columns(
+    #     pl.struct(['pickup_coordinates', 'dropoff_coordinates']) \
+    #     .map_elements(lambda x: compute_centroid_distance(x['pickup_coordinates'], x['dropoff_coordinates']), return_dtype=pl.Float32).alias("centroid_distance")
+    # )
 
     exit()
     write_df_toJSON("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
