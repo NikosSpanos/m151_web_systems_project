@@ -27,6 +27,7 @@ from commons.staging_modules import init_stg_path, \
     feature_engineer_trip_cost, \
     is_holiday, \
     is_weekend, \
+    one_hot_encode_daytime, \
     retrieve_latest_modified_file
 
 def main(logger_object:logging.Logger):
@@ -212,7 +213,15 @@ def main(logger_object:logging.Logger):
             #=================================================================================
             df = df.with_columns(
                 pickup_quarter = ( (pl.col('tpep_pickup_datetime').dt.hour() * 60 + pl.col('tpep_pickup_datetime').dt.minute())/15 ).floor().cast(pl.Int8)
+            ).with_columns(
+                dropoff_quarter = ( (pl.col('tpep_dropoff_datetime').dt.hour() * 60 + pl.col('tpep_dropoff_datetime').dt.minute())/15 ).floor().cast(pl.Int8)
             )
+
+            #=========================================================================
+            # ONE-HOT ENCODE THE DAYTIME VALUES (RUSH-HOUR, OVERNIGHT, DAYTIME)
+            #=========================================================================
+            df = one_hot_encode_daytime(df, 'pickup_daytime')
+            df = one_hot_encode_daytime(df, 'dropoff_daytime')
 
             # ==================================================
             # 3. REMOVE ROWS NOT FOLLOWING GENERAL COLUMN RULES

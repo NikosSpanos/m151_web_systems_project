@@ -6,13 +6,11 @@ import os
 import logging
 import json
 import numpy as np
-from pathlib import Path
 from datetime import datetime
 from typing import Tuple, Optional, Literal
 from multiprocessing import Pool
 from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely import wkt
-from geopy.distance import geodesic
 
 def md5_hashing(value):
     return hashlib.md5(value.encode()).hexdigest()
@@ -159,6 +157,11 @@ def retrieve_latest_modified_file(relative_path:str, flag:str = "taxi_trip") -> 
     files_with_timestamps = [(file, os.path.getmtime(file)) for file in target_files]
     latest_json_file = max(files_with_timestamps, key=lambda x: x[1])[0] if files_with_timestamps else None
     return latest_json_file
+
+def retrieve_latest_modified_folder(relative_path:str) -> Tuple[str, None]:
+    files_with_timestamps = [(folder, os.path.getmtime(os.path.join(relative_path, folder))) for folder in os.listdir(relative_path)]
+    latest_modified_folder = max(files_with_timestamps, key=lambda x: x[1])[0] if files_with_timestamps else None
+    return os.path.join(relative_path, latest_modified_folder)
 
 def fix_data_type(df:pl.DataFrame, type_mapping:dict, dt_format:str = None) -> pl.DataFrame:
     for column, dtype in type_mapping.items():
@@ -414,7 +417,7 @@ def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Lo
         new_hash_keys:pl.LazyFrame = merged_batch.select(pl.col("hashing_key")).unique()
         non_matching_indices:pl.DataFrame = new_hash_keys.join(existing_hash_keys, on="hashing_key", how="anti").collect()
         if non_matching_indices.is_empty():
-            logger.info(f"No new records to save for partition {partition.split("/")[-1]}")
+            logger.info(f"No new records to save for partition {partition.split('/')[-1]}")
             return
         # Write ONLY the updated data if the STAGING directory has already stored parquet files.
         updated_records = merged_batch.filter(pl.col("hashing_key").is_in(non_matching_indices["hashing_key"])).collect()
@@ -444,7 +447,7 @@ def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Lo
 # CATEGORICAL DATA ENCODING TO NUMERIC REPRESENTATIONS
 # =====================================================
 
-def one_hot_encode_daytime(df:pl.DataFrame, col:str):
+def one_hot_encode_daytime(df:pl.DataFrame, col:str) -> pl.DataFrame:
     df = df.to_dummies(col, separator='_', drop_first=True)
     return df
 

@@ -4,24 +4,19 @@ import xgboost as xgb
 import logging
 import configparser
 import os
-import holidays
 import mlflow
 import mlflow.sklearn
+from typing import List
 from pathlib import Path
 from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder
-from datetime import datetime, timedelta
+from datetime import datetime
 from commons.custom_logger import setup_logger
-from commons.staging_modules import feature_engineer_time_to_seconds, \
+from commons.staging_modules import retrieve_latest_modified_folder, \
     one_hot_encode_daytime, \
-    is_holiday, \
-    is_weekend, \
-    compute_coordinates, \
-    compute_centroid_distance, \
     write_df_toJSON, \
     write_df_toCSV
-from commons.ml_modules import remove_null_values, \
-    label_encode_column, \
+from commons.ml_modules import label_encode_column, \
     train_linear_regressor, \
     train_randomforest_regressor, \
     train_xgboost_regressor, \
@@ -55,43 +50,88 @@ def duration_predictor(logger_object:logging.Logger):
     RANDOM_SEED:int = 42
     np.random.seed(RANDOM_SEED)
     
-    #=========================================================================
-    # READ THE PROCESSED-DATA PARQUET FILES FROM STAGING FOLDER OF TAXI_TRIPS
-    #=========================================================================
+    #=========================================================================================
+    # READ THE PROCESSED-DATA PARQUET FILES FROM LATEST MODIFIED STAGING FOLDER OF TAXI_TRIPS
+    #=========================================================================================
     # partitions = Path(stg_processed_path).rglob("*.parquet")
-    partitions = Path(stg_processed_path)
-    parquet_directories = [x for x in partitions.iterdir() if x.is_dir()]
-    # print(list(partitions))
-    # exit()
-    for parquet_dir in parquet_directories:
-        print(parquet_dir)
-        parquet_files = parquet_dir.rglob("*.parquet")
-        print(list(parquet_files))
-        break
-        df = pl.read_parquet(parquet_files, use_pyarrow=True).head(20_000)
-
+    latest_modified_stg_folder:str = retrieve_latest_modified_folder(stg_processed_path)
+    partitions = Path(latest_modified_stg_folder)
     
-    print(df.columns)
-    print(df.shape)
-    # df = pl.read_parquet("/home/nspanos/external_projects/m151_web_systems_project/data/93ae16fe18964d3e8b375273ff53e130-0.parquet", use_pyarrow=True).head(10_000)
+    # parquet_directories = [x for x in partitions.iterdir() if x.is_dir()]
+    parquet_directories = ["/home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips/20240519/partition_dt=202110"]
+    print(parquet_directories)
 
-    #=========================================================================
-    # ONE-HOT ENCODE THE DAYTIME VALUES (RUSH-HOUR, OVERNIGHT, DAYTIME)
-    #=========================================================================
-    df = one_hot_encode_daytime(df, 'pickup_daytime')
-    df = one_hot_encode_daytime(df, 'dropoff_daytime')
+    def read_parquet_files_in_chunks(parquet_files: List[str], chunk_size: int = 500_000):
+        schema:dict={
+            'trip_duration': pl.Float64,
+            'trip_distance': pl.Float64,
+            'pickup_daytime_2': pl.UInt8,
+            'pickup_daytime_3': pl.UInt8,
+            'pickup_quarter': pl.Int8,
+            'pickup_holiday': pl.UInt8,
+            'pickup_weekend': pl.UInt8,
+            'haversine_centroid_distance': pl.Float64
+        }
+        current_chunk = pl.LazyFrame(schema = schema)
+        current_chunk_rows = 0
+        chunk_size: int = 500_000
+        iteration = 1
+        for directory in parquet_files:
+            print(directory)
+            df:pl.LazyFrame = pl.concat([pl.scan_parquet(os.path.join(directory, "*.parquet"))]).select(list(schema.keys()))
+            df_rows:int = df.select(pl.count()).collect().item(0,0)
+            while df_rows > 0:
+                remaining_space = chunk_size - current_chunk_rows
+                print(iteration)
+                print(remaining_space)
+                if df_rows <= remaining_space:
+                    current_chunk = pl.concat([current_chunk, df], how='vertical')
+                    current_chunk_rows += df_rows
+                    df_rows = 0
+                else:
+                    current_chunk = pl.concat([current_chunk, df.slice(current_chunk_rows, remaining_space)], how='vertical')
+                    df = df.slice(remaining_space, None)
+                    df_rows -= remaining_space
+                    yield current_chunk
+                    current_chunk = pl.LazyFrame(schema=schema)
+                    current_chunk_rows = 0
+                iteration +=1
 
-    # #========================================================================================================================
-    # # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
-    # #========================================================================================================================
-    # df = compute_coordinates(df, 'pickup') #generate pickup_coordinates
-    # df = compute_coordinates(df, 'dropoff')
-    # df = df.with_columns(
-    #     pl.struct(['pickup_coordinates', 'dropoff_coordinates']) \
-    #     .map_elements(lambda x: compute_centroid_distance(x['pickup_coordinates'], x['dropoff_coordinates']), return_dtype=pl.Float32).alias("centroid_distance")
-    # )
+        if current_chunk_rows > 0:
+            yield current_chunk
+
+    for chunk_df in read_parquet_files_in_chunks(parquet_directories):
+        # Here, you can process each chunk DataFrame as needed
+        print(chunk_df.select(pl.count()).collect())
+        print(chunk_df.collect().head())
+
+    # You can also train your model on this chunk
+    # train_model(chunk_df)
+    # # preprocessed_df:pl.DataFrame = pl.DataFrame([])
+    # preprocessed_df:pl.LazyFrame = pl.LazyFrame([])
+    # lazy_frames = []
+    # for parquet_dir in parquet_directories:
+  
+    #     # DataFrame API
+    #     # df = pl.concat([pl.scan_parquet(os.path.join(parquet_dir, "*.parquet"))]).collect()
+    #     # preprocessed_df = preprocessed_df.vstack(df)
+        
+    #     # LazyFrame API
+    #     df = pl.concat([pl.scan_parquet(os.path.join(parquet_dir, "*.parquet"))])
+    #     lazy_frames.append(df)
+    
+    # preprocessed_df = pl.concat(lazy_frames)
+
+    # print(preprocessed_df.columns)
+    # # print(preprocessed_df.shape)
+    # print(preprocessed_df.select(pl.count()).collect())
 
     exit()
+
+
+
+
+
     write_df_toJSON("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
     write_df_toCSV("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
 
