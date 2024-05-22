@@ -3,6 +3,8 @@
 import logging
 import os
 import configparser
+import time
+from typing import Tuple
 
 # Initialize configparser object
 config = configparser.ConfigParser()
@@ -24,3 +26,10 @@ def setup_logger(log_path:str, log_filename:str) -> logging.Logger:
             datefmt="%Y-%m-%d %H:%M:%S"
         )
     return logging.getLogger(__name__)
+
+def compute_execution_time(start_time:float)->Tuple[float, float, float]:
+    end_time = time.perf_counter()
+    elapsed_time = end_time - start_time
+    hours, rem = divmod(elapsed_time, 3600)
+    minutes, seconds = divmod(rem, 60)
+    return (hours, minutes, seconds)

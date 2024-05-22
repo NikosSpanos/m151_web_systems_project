@@ -6,33 +6,37 @@ import configparser
 import os
 import mlflow
 import mlflow.sklearn
-from typing import List
+from argparse import ArgumentParser
+from typing import List, Dict
 from pathlib import Path
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder
 from datetime import datetime
 from commons.custom_logger import setup_logger
 from commons.staging_modules import retrieve_latest_modified_folder, \
-    one_hot_encode_daytime, \
     write_df_toJSON, \
     write_df_toCSV
-from commons.ml_modules import label_encode_column, \
+from commons.ml_modules import init_model_artifacts, \
     train_linear_regressor, \
     train_randomforest_regressor, \
     train_xgboost_regressor, \
-    make_predictions, \
-    save_label_encoder
+    make_predictions
 
 def duration_predictor(logger_object:logging.Logger):
     
     #========================================================
     # INITIALIZE MODULE VARIABLES
     #========================================================
-    # Initialize configparser object
+    # Initialize ConfigParser() class
     config = configparser.ConfigParser()
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
     config.read(os.path.join(parent_dir, "config", "config.ini"))
+    
+    # Initialize ArgumentParser() class
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-tt", "--trip_type", type=str, help="Select trip type to enrich with geospatial data", default="short_trip", required=True
+    )
+    args = parser.parse_args()
     
     # Import configuration variables
     application_path:str = config.get("settings", "application_path")
@@ -41,12 +45,17 @@ def duration_predictor(logger_object:logging.Logger):
     if not stg_processed_path:
         logger_object.error("Path not found for processed and enriched tax-trips. Application willl exit...")
     execution_timestamp:datetime = datetime.now().strftime('%Y%m%d')
+    chunk_size:int = int(config.get("ml-settings", "chunk_size"))
+    train_test_split_perce:float = float(config.get("ml-settings", "train_test_split_perce"))
 
-    # ml_model_name = config.get("ml-settings", "duration_model_name")
-    # split_perce:float = float(config.get("ml-settings", "train_test_split_perce"))
-    # artifact_path:str = os.path.join(application_path, "model_artifacts", execution_timestamp)
-    # create_folder(artifact_path)
-
+    model_artifacts_parent:str = config.get("ml-settings", "model_artifacts_path")
+    model_artifacts_child:str = config.get("ml-settings", "duration_model_artifact")
+    model_artifact_path:str = (
+        os.path.join(
+            application_path, model_artifacts_parent, model_artifacts_child, execution_timestamp, args.trip_type
+        )
+    )
+    init_model_artifacts(model_artifact_path, logger_object)
     RANDOM_SEED:int = 42
     np.random.seed(RANDOM_SEED)
     
@@ -54,12 +63,12 @@ def duration_predictor(logger_object:logging.Logger):
     # READ THE PROCESSED-DATA PARQUET FILES FROM LATEST MODIFIED STAGING FOLDER OF TAXI_TRIPS
     #=========================================================================================
     # partitions = Path(stg_processed_path).rglob("*.parquet")
-    latest_modified_stg_folder:str = retrieve_latest_modified_folder(stg_processed_path)
-    partitions = Path(latest_modified_stg_folder)
+    latest_modified_stg_folder:str = os.path.join(retrieve_latest_modified_folder(stg_processed_path), args.trip_type)
+    print(latest_modified_stg_folder)
+    partitions: Path = Path(latest_modified_stg_folder)
     
-    # parquet_directories = [x for x in partitions.iterdir() if x.is_dir()]
-    parquet_directories = ["/home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips/20240519/partition_dt=202110"]
-    print(parquet_directories)
+    # parquet_directories:list = [x for x in partitions.iterdir() if x.is_dir()]
+    parquet_directories:list = ["/home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips/20240521/short_trip/partition_dt=202110"]
 
     def read_parquet_files_in_chunks(parquet_files: List[str], chunk_size: int = 500_000):
         schema:dict={
@@ -67,23 +76,20 @@ def duration_predictor(logger_object:logging.Logger):
             'trip_distance': pl.Float64,
             'pickup_daytime_2': pl.UInt8,
             'pickup_daytime_3': pl.UInt8,
-            'pickup_quarter': pl.Int8,
+            # 'pickup_quarter': pl.Int8,
+            'pickup_seconds':pl.Int64,
             'pickup_holiday': pl.UInt8,
             'pickup_weekend': pl.UInt8,
             'haversine_centroid_distance': pl.Float64
         }
-        current_chunk = pl.LazyFrame(schema = schema)
-        current_chunk_rows = 0
-        chunk_size: int = 500_000
-        iteration = 1
+        current_chunk:pl.LazyFrame = pl.LazyFrame(schema = schema)
+        current_chunk_rows: int = 0
+        iteration:int = 1
         for directory in parquet_files:
-            print(directory)
             df:pl.LazyFrame = pl.concat([pl.scan_parquet(os.path.join(directory, "*.parquet"))]).select(list(schema.keys()))
             df_rows:int = df.select(pl.count()).collect().item(0,0)
             while df_rows > 0:
                 remaining_space = chunk_size - current_chunk_rows
-                print(iteration)
-                print(remaining_space)
                 if df_rows <= remaining_space:
                     current_chunk = pl.concat([current_chunk, df], how='vertical')
                     current_chunk_rows += df_rows
@@ -99,11 +105,124 @@ def duration_predictor(logger_object:logging.Logger):
 
         if current_chunk_rows > 0:
             yield current_chunk
+ 
+    for iteration, chunk_df in enumerate(read_parquet_files_in_chunks(parquet_directories, chunk_size)):
+        chunk_df_height:int = chunk_df.select(pl.count()).collect().item()
+        # SHUFFLE ROWS
+        shuffled_df:pl.DataFrame = chunk_df.collect().sample(fraction=1, with_replacement=False, shuffle=True, seed=1234)
+        chunk_df:pl.LazyFrame = shuffled_df.lazy().with_row_count("row_index")
+        # FILTER OUT OUTLIERS BASED ON PERCENTILES OF TRIP_DURATION
+        lowest_quantile = 0.15
+        highest_quantile = 0.95
+        percentile_bottom_bound = chunk_df.select("trip_duration").quantile(lowest_quantile).collect().item()
+        percentile_top_bound = chunk_df.select("trip_duration").quantile(highest_quantile).collect().item()
+        rounded_bottom_bound = np.floor(percentile_bottom_bound)
+        chunk_df = chunk_df.filter(pl.col("trip_duration") >= rounded_bottom_bound)
+        chunk_df = chunk_df.filter(pl.col("trip_duration") <= percentile_top_bound)
+        # TRAIN-TEST SPLIT LAZYFRAMES
+        chunk_train_data:pl.LazyFrame = chunk_df.slice(0, int(train_test_split_perce * chunk_df_height))
+        chunk_test_data:pl.LazyFrame = chunk_df.slice(
+            int(train_test_split_perce * chunk_df_height), chunk_df_height - int(train_test_split_perce * chunk_df_height)
+        )
 
-    for chunk_df in read_parquet_files_in_chunks(parquet_directories):
-        # Here, you can process each chunk DataFrame as needed
-        print(chunk_df.select(pl.count()).collect())
-        print(chunk_df.collect().head())
+        print(chunk_df.columns)
+        # print(chunk_df.collect().describe())
+        # print(chunk_df.select(pl.count()).collect().item())
+        # exit()
+        X_features:list = ["trip_distance", "pickup_daytime_2", "pickup_daytime_3", "pickup_seconds", "pickup_holiday", "pickup_weekend", "haversine_centroid_distance"]
+        y_features:list = ["trip_duration"]
+
+        X_train, y_train = (
+            chunk_train_data.select(X_features),
+            chunk_train_data.select(y_features)
+        )
+        X_test, y_test = (
+            chunk_test_data.select(X_features),
+            chunk_test_data.select(y_features)
+        )
+        print(X_train.columns)
+        print(y_train.columns)
+
+        # columns_to_normalize = ['trip_distance', 'pickup_quarter', 'haversine_centroid_distance']
+        columns_to_normalize:list = [0, 3, 6]
+        
+        import joblib
+        import xgboost as xgb
+        from sklearn.model_selection import KFold
+        from sklearn.compose import ColumnTransformer
+        from sklearn.preprocessing import MinMaxScaler, StandardScaler
+        from sklearn.pipeline import Pipeline
+        from sklearn.linear_model import LinearRegression
+        from sklearn.ensemble import RandomForestRegressor
+        from sklearn.metrics import mean_squared_error, mean_squared_log_error, mean_absolute_error
+        
+        preprocessor_lr:ColumnTransformer = ColumnTransformer(
+            transformers=[
+                ('standardized', StandardScaler(), columns_to_normalize)
+            ],
+            remainder='passthrough'
+        )
+        preprocessor_forests:ColumnTransformer = ColumnTransformer(
+            transformers=[
+                ('normalized', MinMaxScaler(), columns_to_normalize)
+            ],
+            remainder='passthrough'
+        )
+        params_lr:dict = {
+            "fit_intercept": True,
+            "copy_X": True
+        }
+        params_rf:dict = {
+            "n_estimators": 100,
+            "criterion": "squared_error",
+            "max_depth": 10,
+            "min_samples_split": 2,
+            "min_samples_leaf": 1,
+            "random_state": RANDOM_SEED
+        }
+
+        pipelines:Dict[str, Pipeline] = {
+            'linear_regression': Pipeline(steps=[
+                ('preprocessor', preprocessor_lr),
+                ('model', LinearRegression(**params_lr))
+            ]),
+            'random_forest': Pipeline(steps=[
+                ('preprocessor', preprocessor_forests),
+                ('model', RandomForestRegressor(**params_rf))
+            ]),
+            # 'xgboost': Pipeline(steps=[
+            #     ('preprocessor', preprocessor_forests),
+            #     ('model', xgb.XGBRegressor(**params_xgb))
+            # ])
+        }
+        kf = KFold(n_splits=5, shuffle=True, random_state=RANDOM_SEED)
+        best_rmse = float('inf')
+        best_model = None
+        X_train_vectors, y_train_vectors, X_test_vectors, y_test_vectors = (
+            X_train.collect().to_numpy(),
+            y_train.collect().to_numpy().ravel(),
+            X_test.collect().to_numpy(),
+            y_test.collect().to_numpy().ravel()
+        )
+        for name, pipeline in pipelines.items():
+            rmses:list = []
+            for train_index, val_index in kf.split(X_train_vectors):
+                X_train_batch, X_val_batch = X_train_vectors[train_index], X_train_vectors[val_index]
+                y_train_batch, y_val_batch = y_train_vectors[train_index], y_train_vectors[val_index]
+
+                pipeline.fit(X_train_batch, y_train_batch)
+                y_pred = pipeline.predict(X_val_batch)
+                rmse = mean_squared_error(y_val_batch, y_pred, squared=False)
+                rmses.append(rmse)
+
+            mean_rmse = np.mean(rmses)
+            print(f'{name} RMSE: {mean_rmse}')
+
+            if mean_rmse < best_rmse:
+                best_rmse = mean_rmse
+                best_model = pipeline
+                joblib.dump(best_model, os.path.join(model_artifact_path, f"chunk_{iteration}_best_model.joblib"))
+        break
 
     # You can also train your model on this chunk
     # train_model(chunk_df)
@@ -127,29 +246,6 @@ def duration_predictor(logger_object:logging.Logger):
     # print(preprocessed_df.select(pl.count()).collect())
 
     exit()
-
-
-
-
-
-    write_df_toJSON("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
-    write_df_toCSV("{0}/data/staging/processed/{1}".format(application_path, execution_timestamp), df, "nulls_pruned_yellow_taxi_trip_processed_data_{0}".format(samples_str), logger_object)
-
-    #========================================================
-    # POLARS TO PANDAS FOR BETTER HANDLING FROM SKLEARN/XGBOOST
-    #========================================================
-    df = df.to_pandas()
-
-    #========================================================
-    # LABEL ENCODE CATEGORICAL VARIABLES
-    #========================================================
-    label_encoder = LabelEncoder()
-    encode_cols = ["puzone", "dozone"]
-    fit_encoder = True
-    for name in encode_cols:
-        df, label_encoder, refit = label_encode_column(df, name, label_encoder, fit_encoder, logger_object)
-        if refit:
-            save_label_encoder(label_encoder, artifact_path + "/{0}_label_encoder.joblib".format(name))
 
     #========================================================
     # ISOLATE X, Y FEATURES AND SPLIT THEM TO TRAIN/TEST SAMPLES

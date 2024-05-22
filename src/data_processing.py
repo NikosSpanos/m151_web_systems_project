@@ -7,7 +7,7 @@ import os
 import time
 import holidays
 from datetime import datetime, timedelta
-from commons.custom_logger import setup_logger
+from commons.custom_logger import setup_logger, compute_execution_time
 from commons.staging_modules import init_stg_path, \
     init_unprocessed_folder, \
     init_partitioned_folder, \
@@ -94,7 +94,7 @@ def main(logger_object:logging.Logger):
         # INITIALIZE UNPROCESSED STORAGE PATH FOR COMPACTING LANDING JSON FILES
         #======================================================================
         compact_flag, stg_loc = init_unprocessed_folder(stg_unprocessed_path, execution_timestamp)
-        partition_loc = init_partitioned_folder(stg_partitioned_path, execution_timestamp)
+        short_trip_loc, long_trip_loc = init_partitioned_folder(stg_partitioned_path, execution_timestamp)
 
         if compact_flag:
             #========================================================================
@@ -263,26 +263,39 @@ def main(logger_object:logging.Logger):
             )
 
             # ===========================================================
-            # 5. CREATE A HASH COLUMN FROM UNIQUE COMBINATION OF RECORDS
+            # 5. CREATE THE PARTITION COLUMN - TRIP_FLAG
+            # ===========================================================
+            df = df.with_columns(
+                pl.when(pl.col("trip_distance").gt(35.0)).then(pl.lit('long_trip')).otherwise(pl.lit('short_trip')).alias("trip_type")
+            )
+
+            # ===========================================================
+            # 6. CREATE A HASH COLUMN FROM UNIQUE COMBINATION OF RECORDS
             # ===========================================================
             df = df.with_columns(
                 df.select(["tpep_pickup_datetime", "pulocationid", "dolocationid", "trip_cost"]).hash_rows(seed=1234).alias("hashing_key")
             )
-            
+
             # ==================================================
-            # 6. COMPUTE AND REPORT NULL VALUES PER COLUMN
+            # 7. COMPUTE AND REPORT NULL VALUES PER COLUMN
             # ==================================================
             df_nulls = df.select(pl.all().is_null().sum()).to_dicts()[0]
             null_column_names = [k for k, v in df_nulls.items() if v > 0]
             logger_object.info("Column names with null values: {0}".format(null_column_names))
             
             # ==============================================================
-            # 7. SAVE THE PREPROCESSED DATA OF TAXI TRIPS TO PARQUET FILES
+            # 8. SAVE THE PREPROCESSED DATA OF TAXI TRIPS TO PARQUET FILES
             # ==============================================================
             logger_object.info("Start saving table to partitions")
             start_time = time.perf_counter()
-            df.write_parquet(
-                partition_loc,
+
+            df_short, df_long = (
+                df.filter(pl.col("trip_type").eq(pl.lit('short_trip'))),
+                df.filter(pl.col("trip_type").eq(pl.lit('long_trip')))
+            )
+            assert (df_short.select(pl.count()).item() > 0) and (df_long.select(pl.count()).item() > 0), "Empty dataframes. Please check logs for errors."
+            df_short.write_parquet(
+                short_trip_loc,
                 compression="zstd",
                 use_pyarrow=True,
                 pyarrow_options={
@@ -290,12 +303,18 @@ def main(logger_object:logging.Logger):
                     "existing_data_behavior": "overwrite_or_ignore"
                 }
             )
-            end_time = time.perf_counter()
-            elapsed_time = end_time - start_time
-            hours, rem = divmod(elapsed_time, 3600)
-            minutes, seconds = divmod(rem, 60)
+            df_long.write_parquet(
+                long_trip_loc,
+                compression="zstd",
+                use_pyarrow=True,
+                pyarrow_options={
+                    "partition_cols": ["partition_dt"],
+                    "existing_data_behavior": "overwrite_or_ignore"
+                }
+            )
+            hours, minutes, seconds = compute_execution_time(start_time)
             formatted_time = f"{int(hours):02}:{int(minutes):02}:{int(seconds):06}"
-            print(f"Execution time to write partition files: {formatted_time}")
+            logger_object.info(f"Execution time to write partition files: {formatted_time}")
             logger_object.info("Finished saving table to partitions")
             processing_completed:bool = True
         except Exception as e:

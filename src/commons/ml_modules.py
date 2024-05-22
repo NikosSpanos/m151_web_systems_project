@@ -1,6 +1,5 @@
 #!/usr/bin/env python
-import polars as pl
-import pandas as pd
+import os
 import numpy as np
 import logging
 import xgboost as xgb
@@ -11,44 +10,13 @@ from sklearn.linear_model import LinearRegression
 from sklearn.ensemble import RandomForestRegressor
 from typing import Tuple
 
-def remove_null_values(df:pl.DataFrame, cols:list) -> pl.DataFrame:
-    for col in cols:
-        df = df.filter(~pl.col(col).is_null())
-    return df
-
-def label_encode_column(df:pd.DataFrame, cols_name:str, encoder:LabelEncoder, fit_encoder:bool, logger_obj:logging.Logger) -> Tuple[pd.DataFrame, LabelEncoder, bool]:
-    refit_encoder:bool = False
-    # zones_list = []
-    # if model_name != "duration":
-    #     for col in cols:
-    #         zones_list.extend(list(df[col].unique()))
-    #     zones_list = set(zones_list)
-    #     for zone in zones_list:
-    #         if zone in list(encoder.classes_):
-    #             refit_encoder = False
-    # for col in cols:
-    #     if refit_encoder:
-    #         logger_obj.info("Refitting label encoder for column {0}.".format(col))
-    #         df["{0}_encoded".format(col)] = encoder.fit_transform(df[col])
-    #     else:
-    #         logger_obj.info("Using already fitted label encoder for column {0}.".format(col))
-    #         df["{0}_encoded".format(col)] = encoder.transform(df[col])
-    # return (df, encoder, refit_encoder)
-    if fit_encoder:
-        logger_obj.info("Fitting label encoder for column {0}.".format(cols_name))
-        df["{0}_encoded".format(cols_name)] = encoder.fit_transform(df[cols_name])
-        refit_encoder = True
+def init_model_artifacts(path:str, logger_object:logging.Logger):
+    if not os.path.exists(path):
+        logger_object.info(f"Staging path: {path} not found. Creating path...")
+        os.makedirs(path, exist_ok=True)
     else:
-        logger_obj.info("Using already fitted label encoder for column {0}.".format(cols_name))
-        df["{0}_encoded".format(cols_name)] = encoder.transform(df[cols_name])
-    return (df, encoder, refit_encoder)
-
-def save_label_encoder(lbl_encoder:LabelEncoder, pathname:str):
-    joblib.dump(lbl_encoder, pathname)
-
-def load_label_encoder(pathname:str) -> LabelEncoder:
-    lbl_encoder = joblib.load(pathname)
-    return lbl_encoder
+        logger_object.info(f"Staging path: {path} already exists. Program will continue.")
+    return
 
 def save_model_regressor(model, filename:str):
     model_filename = "linear_regression_model.joblib"

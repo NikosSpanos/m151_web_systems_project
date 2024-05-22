@@ -1,15 +1,14 @@
 #!/usr/bin/env python
 
-import polars as pl
 import logging
 import configparser
 import os
 import time
-from functools import partial
+from argparse import ArgumentParser
 from multiprocessing import Pool
 from datetime import datetime
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from commons.custom_logger import setup_logger
+from commons.custom_logger import setup_logger, compute_execution_time
 from commons.staging_modules import init_stg_path, \
     get_latest_partitioned_folder, \
     retrieve_latest_modified_file, \
@@ -20,41 +19,49 @@ def main(logger_object:logging.Logger):
     #========================================================
     # INITIALIZE MODULE VARIABLES
     #========================================================
-    # Initialize configparser object
+    # Initialize ConfigParser() class
     config = configparser.ConfigParser()
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
     config.read(os.path.join(parent_dir, "config", "config.ini"))
     
+    # Initialize ArgumentParser() class
+    parser = ArgumentParser()
+    parser.add_argument(
+        "-tt", "--trip_type", type=str, help="Select trip type to enrich with geospatial data", default="short_trip", required=True
+    )
+    args = parser.parse_args()
+
     # Import configuration variables
     application_path = config.get("settings", "application_path")
     stg_partitioned_loc = config.get("local-path-settings", "stg_partitioned_loc")
     stg_processed_loc = config.get("local-path-settings", "staging_processed_folder")
     geospatial_data_folder = config.get("local-path-settings", "geospatial_processed_folder")
     execution_timestamp = datetime.now().strftime('%Y%m%d')
-    
+
     #===================================================================
     # INITIALIZE STAGING PROCESSED PATH FOR STORING THE ENRICHED DATA
     #===================================================================
-    stg_processed_path = os.path.join(application_path, stg_processed_loc, execution_timestamp)
+    stg_processed_path = os.path.join(application_path, stg_processed_loc, execution_timestamp, args.trip_type)
+    # print(stg_processed_path)
     init_stg_path(stg_processed_path, logger_object)
-
     #========================================================
     # COLLECT THE LATEST PARTITIONED FOLDER
     #========================================================
     stg_partitioned_path = os.path.join(application_path, stg_partitioned_loc)
-    latest_partitioned_folder = get_latest_partitioned_folder(stg_partitioned_path, logger_object)
-    print(latest_partitioned_folder)
+    latest_partitioned_folder = os.path.join(get_latest_partitioned_folder(stg_partitioned_path, logger_object), args.trip_type)
+    
+    # print(latest_partitioned_folder)
+    # print(os.path.join(latest_partitioned_folder, args.trip_type))
 
     #========================================================
     # LIST ALL PARTITION DIRECTORIES
     #========================================================
-    partitions = [
+    partitions:list = [
         os.path.join(latest_partitioned_folder, d)
         for d in os.listdir(latest_partitioned_folder)
         if os.path.isdir(os.path.join(latest_partitioned_folder, d))
     ]
-    
     #=================================================================
     # MAP NEW NAMES FOR THE GENERATED COLUMNS FROM GEOSPATIAL SAMPLES
     #=================================================================
@@ -71,8 +78,6 @@ def main(logger_object:logging.Logger):
     # LOAD THE SAVED GEOSPATIAL DATA
     #=================================================================
     geospatial_data_storage = os.path.join(parent_dir, geospatial_data_folder)
-    # geospatial_cols:list = ["objectid", "zone", "polygon_area", "polygon_centroid"]
-    # df_geo = pl.scan_ndjson(retrieve_latest_modified_file(geospatial_data_storage, "taxi_zones")).select(*geospatial_cols)
     geo_path:str = retrieve_latest_modified_file(geospatial_data_storage, "taxi_zones")
 
     #=================================================================
@@ -94,24 +99,16 @@ def main(logger_object:logging.Logger):
     #     print(data.columns)
     # exit()
     
-    # With Threading
-    # Number of threads to use
-    # num_threads = 1
-    num_processes = 3
-    start_time = time.perf_counter()
     try:
+        # num_threads = 1
         # with ThreadPoolExecutor(max_workers=num_threads) as executor:
-        #     future_to_partition = [executor.submit(enrich_partition_samples, partition, mapping_names, df_geo, stg_processed_path, logger_object) for partition in partitions]
-        
-        # task_args = [(partition, mapping_names, df_geo, stg_processed_path, logger_object) for partition in partitions]
+        #     future_to_partition = [executor.submit(enrich_partition_samples, (partition, mapping_names, geo_path, stg_processed_path, logger_object)) for partition in partitions]
+        num_processes:int = 3
         task_args:list = [(partition, mapping_names, geo_path, stg_processed_path, logger_object) for partition in partitions]
+        start_time:float = time.perf_counter()
         with Pool(num_processes) as pool:
             pool.map(enrich_partition_samples, task_args)
-        
-        end_time = time.perf_counter()
-        elapsed_time = end_time - start_time
-        hours, rem = divmod(elapsed_time, 3600)
-        minutes, seconds = divmod(rem, 60)
+        hours, minutes, seconds = compute_execution_time(start_time)
         logger_object.info(f"DATA ENRICHMENT FINISHED - Taxi trips enriched with geospatial data. (Total execution time = {int(hours):02}:{int(minutes):02}:{int(seconds):06})")
     except Exception as e:
         logger_object.error(e)

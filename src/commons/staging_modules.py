@@ -1,19 +1,16 @@
 #!/usr/bin/env python
-import hashlib
 import glob
 import polars as pl
 import os
 import logging
 import json
 import numpy as np
+import uuid
 from datetime import datetime
 from typing import Tuple, Optional, Literal
 from multiprocessing import Pool
 from shapely.geometry import Polygon, MultiPolygon, Point
 from shapely import wkt
-
-def md5_hashing(value):
-    return hashlib.md5(value.encode()).hexdigest()
 
 def init_stg_path(stg_path:str, logger_object:logging.Logger):
     if not os.path.exists(stg_path):
@@ -35,10 +32,18 @@ def init_unprocessed_folder(stg_path:str, subfolder:str) -> Tuple[bool, str]:
         compact_flag = True
         return compact_flag, new_stg_loc
 
-def init_partitioned_folder(stg_path:str, subfolder:str) -> str:
+def init_partitioned_folder(stg_path:str, subfolder:str) -> Tuple[str, str]:
     new_stg_loc = os.path.join(stg_path, subfolder)
-    os.makedirs(new_stg_loc, exist_ok=True)
-    return new_stg_loc
+    short_trip_loc,  long_trip_loc = (
+        os.path.join(new_stg_loc, "short_trip"),
+        os.path.join(new_stg_loc, "long_trip")
+    )
+    (
+        os.makedirs(new_stg_loc, exist_ok=True),
+        os.makedirs(short_trip_loc, exist_ok=True),
+        os.makedirs(long_trip_loc, exist_ok=True),
+    )
+    return short_trip_loc, long_trip_loc
 
 def init_lnd_folder(lnd_parent_path:str) -> str:
     available_directories = [
@@ -301,19 +306,6 @@ def compute_longitude(centroid_value:Point):
 def compute_latitude(centroid_value:Point):
     return wkt.loads(centroid_value).y
 
-# def compute_coordinates(df:pl.DataFrame, col:str):
-#     target_col:str = 'pu_polygon_centroid' if col == 'pickup' else 'do_polygon_centroid'
-#     target_lat:str = f"{col}_latitude"
-#     target_lng = f"{col}_longitude"
-#     df = df.with_columns(
-#         pl.col(target_col).map_elements(compute_longitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lng)
-#     ).with_columns(
-#         pl.col(target_col).map_elements(compute_latitude, return_dtype=pl.Float32, skip_nulls=True).alias(target_lat)
-#     ).with_columns(
-#         pl.struct([target_lat, target_lng]).alias(f"{col}_coordinates")
-#     ).drop(target_lat, target_lng)
-#     return df
-
 def compute_coordinates(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
     target_col:str = 'pu_polygon_centroid' if col == 'pickup' else 'do_polygon_centroid'
     location_data:str = f'{col}_location_cleaned'
@@ -324,18 +316,6 @@ def compute_coordinates(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
         pl.col(location_data).str.split(' ').alias(coordinates)
     ).drop(location_data)
     return df
-
-# def compute_centroid_distance(pu_coordinates:dict, do_coordinates:dict):
-#     if (pu_coordinates["pickup_latitude"]) and (pu_coordinates["pickup_longitude"]) and (do_coordinates["dropoff_latitude"]) and (do_coordinates["dropoff_longitude"]):
-#         centroid_distance = geodesic(
-#             (pu_coordinates["pickup_latitude"], pu_coordinates["pickup_longitude"]),
-#             (do_coordinates["dropoff_latitude"], do_coordinates["dropoff_longitude"])
-#         ).kilometers
-#     else:
-#         print(pu_coordinates)
-#         print(do_coordinates)
-#         centroid_distance = 0.0
-#     return centroid_distance
 
 def compute_haversine_disntance(df:pl.LazyFrame, R:np.float64, coordinates:dict) -> pl.LazyFrame:
     pl.Config.set_fmt_float("full")
@@ -358,21 +338,20 @@ def compute_haversine_disntance(df:pl.LazyFrame, R:np.float64, coordinates:dict)
 # ==================================================
 # DATA ENRICHMENT
 # ==================================================
-def read_parquet_files(partition_path:str, stg_path:str) -> pl.LazyFrame:
-    files = glob.glob(os.path.join(stg_path, partition_path.split('/')[-1], "*.parquet"))
-    if files:
-        return pl.concat([pl.scan_parquet(file) for file in files])
+def read_parquet_files(partition_path:str, stg_path:str, file_type:str="*.parquet") -> pl.LazyFrame:
+    # files = glob.glob(os.path.join(stg_path, partition_path.split('/')[-1], "*.parquet"))
+    files_stg_path:str = os.path.join(stg_path, partition_path.split('/')[-1])
+    if os.path.exists(files_stg_path):
+        # return pl.concat([pl.scan_parquet(file) for file in files])
+        return pl.scan_parquet(
+            os.path.join(files_stg_path, file_type)
+        ).with_columns(
+            pl.lit(partition_path.split("=")[1], dtype=pl.Utf8).alias("partition_dt")
+        )
     else:
-        return pl.DataFrame([])
-    
-# def enrich_partition_samples(partition:str, mapping_names:list, df_geo:pl.LazyFrame, stg_processed_path:str, logger:logging.Logger):
-def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Logger]):
-    partition, mapping_names, geo_path, stg_processed_path, logger = args
-    parquet_files:str = os.path.join(partition, "*.parquet")  # Read all the parquet files under a specific partition
-    print(f"Reading all files under path: {partition}")
-    df_partition:pl.LazyFrame= pl.scan_parquet(parquet_files).with_columns(pl.lit(partition.split("=")[1], dtype=pl.Utf8).alias("partition_dt"))
-    geospatial_cols:list = ["objectid", "zone", "polygon_area", "polygon_centroid"]
-    df_geo:pl.LazyFrame = pl.scan_ndjson(geo_path).select(*geospatial_cols)
+        return pl.LazyFrame([])
+
+def enrich_geospatial_info(df_partition:pl.LazyFrame, df_geo:pl.LazyFrame, mapping_names:list) -> pl.LazyFrame:
     merged_batch = df_partition.join(
         df_geo,
         left_on=pl.col("pulocationid"),
@@ -390,7 +369,6 @@ def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Lo
     #========================================================
     merged_batch = merged_batch.drop_nulls(["pu_zone", "do_zone"])
     # during data exploration, identified location ids [264, 265] with no available data from the geospatial sample.
-    
     #========================================================================================================================
     # COMPUTE TRIP DISTANCE USING CENTROID DATA OF PICKUP-DROPOFF ZONES (SUPPLEMENTARY FEATURE TO ORIGINAL TRIP DISTANCE)
     #========================================================================================================================
@@ -401,47 +379,76 @@ def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Lo
         "dropoff_points": "dropoff_coordinates"
     }
     merged_batch = compute_haversine_disntance(merged_batch, 6371.0087714150598, coordinates)
+    return merged_batch
+
+def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Logger]):
+    """
+    Explaining the architecutral logic
+    1. Read the file saved under the paritioned data file path. Those files are the preprocessed/clean data samples per partition.
+    2. Read the already existing data saved under the /processed folder. Data enriched with geospatial info.
+    Now we have two scenarios:
+        Scenario 1: Enriched data samples already exist (bullet 2 returned non-empty LazyFrame) then compare the different hash keys.
+        If no matching hash key then END program execution.
+        Else compute geospatial info for the NON-MATCHING hash keys only.
+        Scenario 2: If no existing data have been saved (i.e. /processed folder was empty), then compute geospatial info for all records.
+    """
+    partition, mapping_names, geo_path, stg_processed_path, logger = args
+    parquet_files:str = os.path.join(partition, "*.parquet")  # Read all the parquet files under a specific partition folder
     
-    #========================================================================================================================
-    # COMPUTE HASH KEYS FOR EACH RECORD TO SECURE THAT ONLY EXISTING RECORDS WILL BE SAVED.
-    #========================================================================================================================
-    merged_batch = merged_batch.with_columns(
-        pl.concat_str(["tpep_pickup_datetime", "pulocationid", "dolocationid", "trip_cost"]).hash(1234).alias("hashing_key")
-    )
-    existing_data = read_parquet_files(partition, stg_processed_path) #return tuple of boolean (True/False, existing_df)
-    if existing_data.width > 0:
+    # Read preprocessed/cleaned samples
+    df_partition:pl.LazyFrame= pl.scan_parquet(parquet_files).with_columns(pl.lit(partition.split("=")[1], dtype=pl.Utf8).alias("partition_dt"))
+    # Read existing parquet files under /processed directory
+    existing_data:pl.LazyFrame = read_parquet_files(partition, stg_processed_path)
+    # Read geospatial info
+    geospatial_cols:list = ["objectid", "zone", "polygon_area", "polygon_centroid"]
+    df_geo:pl.LazyFrame = pl.scan_ndjson(geo_path).select(*geospatial_cols)
+    # Boolean value to compute hasing keys
+    # compute_hash_keys:bool = True
+
+    if not existing_data.limit(1).collect().is_empty():
+        assert ("hashing_key" in existing_data.columns) and ("hashing_key" in df_partition), "Hashing column not found in existing AND new samples..Exiting"
+        existing_hash_keys:pl.LazyFrame = existing_data.select(pl.col("hashing_key")).unique()
+        new_hash_keys:pl.LazyFrame = df_partition.select(pl.col("hashing_key")).unique()
         #===========================
         # DEDUPLICATION
         #===========================
-        existing_hash_keys:pl.LazyFrame = existing_data.select(pl.col("hashing_key")).unique()
-        new_hash_keys:pl.LazyFrame = merged_batch.select(pl.col("hashing_key")).unique()
         non_matching_indices:pl.DataFrame = new_hash_keys.join(existing_hash_keys, on="hashing_key", how="anti").collect()
+        #===========================
         if non_matching_indices.is_empty():
-            logger.info(f"No new records to save for partition {partition.split('/')[-1]}")
+            logger.info(f"No new records to save for {partition.split('/')[-1]}")
             return
-        # Write ONLY the updated data if the STAGING directory has already stored parquet files.
-        updated_records = merged_batch.filter(pl.col("hashing_key").is_in(non_matching_indices["hashing_key"])).collect()
-        updated_records.write_parquet(
+        df_partition_non_matched:pl.LazyFrame = df_partition.filter(pl.col("hashing_key").is_in(non_matching_indices["hashing_key"]))
+        merged_batch:pl.LazyFrame = enrich_geospatial_info(df_partition_non_matched, df_geo, mapping_names)
+        merged_batch.collect().write_parquet(
             stg_processed_path,
             compression="zstd",
             use_pyarrow=True,
             pyarrow_options={
+                "basename_template": str(uuid.uuid4()) + '-{i}.parquet', #unique generation of names results in append behavior.
                 "partition_cols": ["partition_dt"],
                 "existing_data_behavior": "overwrite_or_ignore"
             }
         )
+        return
     else:
-        logger.info(f"Staging path: {os.path.join(stg_processed_path, partition.split('/')[-1])} is empty. Writing all collected data...")
+        logger.info(
+            f"Staging path: {os.path.join(stg_processed_path, partition.split('/')[-1])} is empty.\
+            Ernriching and Writing all collected data per partition..."
+        )
+        # Geospatial info enrichment
+        merged_batch:pl.LazyFrame = enrich_geospatial_info(df_partition, df_geo, mapping_names)
         # Write everything if the STAGING directory is empty.
         merged_batch.collect().write_parquet(
             stg_processed_path,
             compression="zstd",
             use_pyarrow=True,
             pyarrow_options={
+                "basename_template": str(uuid.uuid4()) + '-{i}.parquet',
                 "partition_cols": ["partition_dt"],
                 "existing_data_behavior": "overwrite_or_ignore"
             }
         )
+        return
 
 # =====================================================
 # CATEGORICAL DATA ENCODING TO NUMERIC REPRESENTATIONS
