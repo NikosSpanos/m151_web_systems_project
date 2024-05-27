@@ -1,14 +1,17 @@
 #!/usr/bin/env python
 import os
-import numpy as np
 import logging
-import xgboost as xgb
-import joblib
-from sklearn.preprocessing import LabelEncoder
-from sklearn.metrics import mean_squared_error, mean_squared_log_error, mean_absolute_error
-from sklearn.linear_model import LinearRegression
-from sklearn.ensemble import RandomForestRegressor
-from typing import Tuple
+import numpy as np
+import matplotlib.pyplot as plt
+import seaborn as sns
+from typing import Dict
+from sklearn.model_selection import KFold
+from sklearn.compose import ColumnTransformer
+from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.pipeline import Pipeline
+from sklearn.linear_model import LinearRegression, Ridge, ElasticNet
+from sklearn.ensemble import RandomForestRegressor, VotingRegressor
+from sklearn.metrics import root_mean_squared_error
 
 def init_model_artifacts(path:str, logger_object:logging.Logger):
     if not os.path.exists(path):
@@ -18,41 +21,93 @@ def init_model_artifacts(path:str, logger_object:logging.Logger):
         logger_object.info(f"Staging path: {path} already exists. Program will continue.")
     return
 
-def save_model_regressor(model, filename:str):
-    model_filename = "linear_regression_model.joblib"
-    joblib.dump(model, filename)
+class ML_MODELING():
 
-def train_xgboost_regressor(params, dtrain) -> xgb.Booster:
-    model = xgb.train(params, dtrain)
-    return model
+    def __init__(self, ml_model:str, model_artifacts_path:str, model_metadata_path:str, model_residuals_path:str, kfold_splits:int, RANDOM_SEED:int):
+        self.columns_to_normalize:list = [0, 5, 6, 9] #Integres =numppy index matching to dataframe columns
+        self.valid_regressor_names:list = ["linear_regressor", "randomforest_regressor", "voting_regressor"]
+        self.patience = 5
+        self.hyper_parameters_adjustment = 1.15 # positive percentage increase. Thus 1.05 means 5%, 1.10 means 10% and so on so forth.
+        self.preprocessor_lr:ColumnTransformer = ColumnTransformer(
+            transformers=[
+                ('standardized', StandardScaler(), self.columns_to_normalize)
+            ],
+            remainder='passthrough'
+        )
+        self.preprocessor_forests:ColumnTransformer = ColumnTransformer(
+            transformers=[
+                ('normalized', MinMaxScaler(), self.columns_to_normalize)
+            ],
+            remainder='passthrough'
+        )
+        if ml_model == "linear_regressor":
+            self.params_grid:dict = {
+                "fit_intercept": True,
+                "copy_X": True,
+                "n_jobs": -1
+            }
+            self.pipeline:Dict[str, Pipeline] = {
+                ml_model: Pipeline(steps=[
+                    ('preprocessor', self.preprocessor_lr),
+                    ('model', LinearRegression(**self.params_grid))
+                ])
+            }
+        elif ml_model == "randomforest_regressor":
+            self.params_grid:dict = {
+                "n_estimators": 100,
+                "max_depth": 25,
+                "max_samples": 0.25,
+                "min_samples_split": 3,
+                "min_samples_leaf": 5
+            } # Ηyper-parameters n_estimators, max_depth, max_samples, min_samples_leaf greatly affect the RMSE score (after experimentation).
+            self.pipeline:Dict[str, Pipeline] = {
+                ml_model: Pipeline(steps=[
+                    ('preprocessor', self.preprocessor_forests),
+                    ('model', RandomForestRegressor(**self.params_grid, criterion = "squared_error", random_state = RANDOM_SEED, n_jobs = -1))
+                ])
+            }
+        else:
+            self.params_grid:dict = {
+                "fit_intercept": True,
+                "copy_X": True
+            }
+            self.params_rr:dict = {
+                "tol": 0.0001,
+                "alpha": 0.1,
+                "max_iter": 500,
+            }
+            self.params_elr:dict = {
+                "alpha": 0.1,
+                "l1_ratio": 0.1,
+                "max_iter": 500,
+            }
+            self.pipeline:Dict[str, Pipeline] = {
+                ml_model: Pipeline(steps=[
+                    ('preprocessor', self.preprocessor_lr),
+                    ('model', VotingRegressor(
+                        estimators=[
+                            ("lr", LinearRegression(**self.params_grid)),
+                            ("rr", Ridge(**self.params_rr, fit_intercept=True, random_state=RANDOM_SEED, solver='auto')),
+                            ("elr", ElasticNet(**self.params_elr, fit_intercept=True, random_state=RANDOM_SEED))
+                        ],
+                        n_jobs=-1,
+                        verbose=False
+                    ))
+                ])
+            }
 
-def train_linear_regressor(train_x, train_y, params):
-    model = LinearRegression(**params)
-    model.fit(train_x, train_y)
-    return model
+        self.kf = KFold(n_splits=kfold_splits, shuffle=True, random_state=RANDOM_SEED)
+        self.evaluation_metric = root_mean_squared_error
+        self.model_artifact:str = os.path.join(model_artifacts_path, f"{ml_model}_best_model.joblib")
+        self.model_scores:str = os.path.join(model_metadata_path, f"{ml_model}_scores.json")
+        self.model_residuals:str = os.path.join(model_residuals_path, f"{ml_model}_residuals_plot.png")
 
-def train_randomforest_regressor(train_x, train_y, params):
-    model = RandomForestRegressor(**params)
-    model.fit(train_x, train_y)
-    return model
-
-def make_predictions(model_name, model, dtest, y_test, logger_obj:logging.Logger) -> Tuple[float, float, str]:
-    if model_name == "linear":
-        y_test = y_test.values
-    elif model_name == "randomforest":
-        y_test = y_test.values.ravel()
-    y_pred = model.predict(dtest)
-    rmse = np.sqrt(mean_squared_error(y_test, y_pred))
-    if np.any(y_pred < 0):
-        # mape = mean_absolute_percentage_error(y_test, y_pred)
-        mape = mean_absolute_error(y_test, y_pred)
-        metric_selected_value = mape
-        # metric_selected_name = "mean-absolute-percentage-error"
-        metric_selected_name = "mean-absolute-error"
-    else:
-        msle = mean_squared_log_error(y_test, y_pred)
-        metric_selected_value = msle
-        metric_selected_name = "mean-squared-logarithmic-error"
-    logger_obj.info("root-mean-squared-error: %f" % (rmse))
-    logger_obj.info("%s: %f" % (metric_selected_name, metric_selected_value))
-    return (rmse, metric_selected_value, metric_selected_name)
+    def plot_residuals(self, residuals:np.ndarray):
+        # Residuals Distribution Plot
+        plt.figure(figsize=(8, 6))
+        sns.histplot(residuals, bins=30, kde=True)
+        plt.xlabel("Residuals")
+        plt.ylabel("Frequency")
+        plt.title("Residuals Distribution")
+        plt.grid(True)
+        plt.savefig(self.model_residuals)

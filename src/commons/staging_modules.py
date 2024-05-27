@@ -112,7 +112,7 @@ def create_folder(folder_path:str):
         os.makedirs(folder_path)
         print("Folder '{0}' has been created.".format(folder_path))
 
-def collect_data(args:tuple)-> pl.DataFrame:
+def collect_data(args:Tuple[str,list,logging.Logger])-> pl.DataFrame:
     lnd_file, cols_list, logger_obj = args
     logger_obj.info(f"Processing file: {lnd_file}")
     load_df = pl.read_json(lnd_file)
@@ -168,7 +168,7 @@ def retrieve_latest_modified_folder(relative_path:str) -> Tuple[str, None]:
     latest_modified_folder = max(files_with_timestamps, key=lambda x: x[1])[0] if files_with_timestamps else None
     return os.path.join(relative_path, latest_modified_folder)
 
-def fix_data_type(df:pl.DataFrame, type_mapping:dict, dt_format:str = None) -> pl.DataFrame:
+def fix_data_type(df:pl.LazyFrame, type_mapping:dict, dt_format:str = None) -> pl.LazyFrame:
     for column, dtype in type_mapping.items():
         if dtype == "datetime":
             df = df.with_columns(pl.col(column).str.to_datetime(dt_format))
@@ -176,54 +176,78 @@ def fix_data_type(df:pl.DataFrame, type_mapping:dict, dt_format:str = None) -> p
             df = df.with_columns(pl.col(column).cast(dtype))
     return df
 
-def remove_abnormal_dates(df:pl.DataFrame, cols:list, dataset_year:datetime, start_of_time:datetime, logger_obj:logging.Logger) -> pl.DataFrame:
+def remove_abnormal_dates(df:pl.LazyFrame, cols:list, dataset_year:datetime, start_of_time:datetime, logger_obj:logging.Logger) -> pl.LazyFrame:
     for col in cols:
         above_current_fyear = df.filter(pl.col(col).dt.year().gt(dataset_year.year))
         before_start_of_time = df.filter(pl.col(col).dt.year().lt(start_of_time.year))
-        logger_obj.info("{0} dates after current fiscal year ({1}): {2}".format(col, dataset_year.year, above_current_fyear.height))
-        logger_obj.info("{0} dates before start of Unix time (1970-01-01) ({1}): {2}".format(col, start_of_time.year, before_start_of_time.height))
+        logger_obj.info("{0} dates after current fiscal year ({1}): {2}".format(col, dataset_year.year, above_current_fyear.collect().height))
+        logger_obj.info("{0} dates before start of Unix time (1970-01-01) ({1}): {2}".format(col, start_of_time.year, before_start_of_time.collect().height))
         # Remove rows with year greater/lower than the dataset year
         df = df.filter(
             (pl.col(col).dt.year().le(dataset_year.year)) & (pl.col(col).dt.year().gt( start_of_time.year ))
         )
     return df
 
-def remove_negative_charges(df:pl.DataFrame, cols:list, logger_obj:logging.Logger) -> pl.DataFrame:
+def remove_negative_charges(df:pl.LazyFrame, cols:list, logger_obj:logging.Logger) -> pl.LazyFrame:
     for col in cols:
         if col in ["tolls_amount", "extra", "mta_tax", "improvement_surcharge"]:
             negative_charges = df.filter(pl.col(col).lt(0))
-            logger_obj.info("{0} with negative values (<0): {1}".format(col, negative_charges.height))
+            logger_obj.info("{0} with negative values (<0): {1}".format(col, negative_charges.collect().height))
             df = df.filter(pl.col(col).ge(0))
         else:
             negative_charges = df.filter(pl.col(col).le(0))
-            logger_obj.info("{0} with negative values (<=0): {1}".format(col, negative_charges.height))
+            logger_obj.info("{0} with negative values (<=0): {1}".format(col, negative_charges.collect().height))
             df = df.filter(pl.col(col).gt(0))
     return df
 
-def remove_equal_pickup_dropoff_times(df:pl.DataFrame, pu_col:str, do_col:str, logger_obj:logging.Logger) -> pl.DataFrame:
+def remove_equal_pickup_dropoff_times(df:pl.LazyFrame, pu_col:str, do_col:str, logger_obj:logging.Logger) -> pl.LazyFrame:
     equal_pu_do_dt = df.filter(pl.col(pu_col).ge(pl.col(do_col)))
-    logger_obj.info("Taxi trips without duration (pickup date >= drop-off date): {0}".format(equal_pu_do_dt.height))
+    logger_obj.info("Taxi trips without duration (pickup date >= drop-off date): {0}".format(equal_pu_do_dt.collect().height))
     df = df.filter(pl.col(pu_col).lt(pl.col(do_col)))
     return df
 
 # ==================================================
 # FEATURE ENGINEERING MODULES
 # ==================================================
-def feature_engineer_trip_duration(df:pl.DataFrame,  pu_col:str, do_col:str, duratation_col_name:str) -> pl.DataFrame:
+def feature_engineer_trip_duration(df:pl.LazyFrame,  pu_col:str, do_col:str, duratation_col_name:str) -> pl.LazyFrame:
     df = df.with_columns(
         ( ( ( ( pl.col(do_col) - pl.col(pu_col) )/60 )/1_000_000 ).round(2)).cast(pl.Float64).alias(duratation_col_name)
     )
     df = df.filter(pl.col(duratation_col_name).ge(1.0)) # Remove rows with trip duration less than 1 minute.
     return df
 
-def feature_engineer_trip_hour(df:pl.DataFrame, cols:list) -> pl.DataFrame:
-    for col in cols:
-        df = df.with_columns(
-            pl.col(col[0]).dt.hour().cast(pl.Int64).alias("{0}_hour".format(col[1])),
-        )
+def feature_engineer_trip_hour(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
+    target_col:str = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+        pl.col(target_col).dt.hour().cast(pl.Int8).alias(f"{col}_hour"),
+    )
     return df
 
-def feature_engineer_trip_daytime(df:pl.DataFrame, daytime_mapper:list, cols:tuple) -> pl.DataFrame:
+def feature_engineer_trip_month(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
+    target_col:str = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+        pl.col(target_col).dt.month().cast(pl.Int8).alias(f"{col}_month"),
+    )
+    return df
+
+def feature_engineer_trip_weekday(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
+    target_col:str = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    df = df.with_columns(
+            (pl.col(target_col).dt.weekday()).cast(pl.Int8).alias(f"{col}_weekday")
+        )
+    df = df.with_columns(
+        pl.when(pl.col(f"{col}_weekday").eq(1)).then("Monday")
+          .when(pl.col(f"{col}_weekday").eq(2)).then("Tuesday")
+          .when(pl.col(f"{col}_weekday").eq(3)).then("Wednesday")
+          .when(pl.col(f"{col}_weekday").eq(4)).then("Thursday")
+          .when(pl.col(f"{col}_weekday").eq(5)).then("Friday")
+          .when(pl.col(f"{col}_weekday").eq(6)).then("Saturday")
+          .otherwise("Sunday")
+          .alias(f"{col}_weekday_str")
+    )
+    return df
+
+def feature_engineer_trip_daytime(df:pl.LazyFrame, daytime_mapper:list, cols:tuple) -> pl.LazyFrame:
     for col in cols:
         df = df.with_columns(
             # pl.col(col[0]).map_elements(daytime_value, return_dtype=pl.Utf8).map_dict(daytime_mapper).cast(pl.Int64).alias("{0}_daytime".format(col[1]))
@@ -231,20 +255,21 @@ def feature_engineer_trip_daytime(df:pl.DataFrame, daytime_mapper:list, cols:tup
         )
     return df
 
-def feature_engineer_trip_distance(df:pl.DataFrame, cols:str) -> pl.DataFrame:
-    df = df.with_columns(
-        (df[cols] * 1.60934).round(2).alias(cols)
+def feature_engineer_trip_distance(df:pl.LazyFrame, distance_col:str) -> pl.LazyFrame:
+    # df:pl.DataFrame = df.collect()
+    df:pl.LazyFrame = df.with_columns(
+        (pl.col(distance_col) * 1.60934).round(2).alias(distance_col)
     )
     return df
 
-def feature_engineer_trip_cost(df:pl.DataFrame, cols:list) -> pl.DataFrame:
+def feature_engineer_trip_cost(df:pl.LazyFrame, cols:list) -> pl.LazyFrame:
     sum_expression = sum([pl.col(column) for column in cols])
     df = df.with_columns(
         sum_expression.alias("trip_cost")
     )
     return df
 
-def feature_engineer_nearest_hour_quarter(df:pl.DataFrame, col:str) -> pl.DataFrame:
+def feature_engineer_nearest_hour_quarter(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
     target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
     df = df.with_columns(
         pl.col(target_col).dt.truncate("15m", use_earliest=True).dt.strftime('%H:%M').cast(pl.Utf8).alias(f"{col}_quarter")
@@ -252,7 +277,7 @@ def feature_engineer_nearest_hour_quarter(df:pl.DataFrame, col:str) -> pl.DataFr
     return df
 
 def feature_engineer_time_to_seconds(df:pl.DataFrame, col:str):
-    target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
+    target_col:str = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
     df = df.with_columns(
             pl.col(target_col).dt.date().cast(pl.Datetime).alias(f'{col}_month_start')
         ).with_columns(
@@ -381,7 +406,7 @@ def enrich_geospatial_info(df_partition:pl.LazyFrame, df_geo:pl.LazyFrame, mappi
     merged_batch = compute_haversine_disntance(merged_batch, 6371.0087714150598, coordinates)
     return merged_batch
 
-def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Logger]):
+def enrich_partition_samples(args:Tuple[str, list, str, str, logging.Logger]):
     """
     Explaining the architecutral logic
     1. Read the file saved under the paritioned data file path. Those files are the preprocessed/clean data samples per partition.
@@ -394,16 +419,15 @@ def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Lo
     """
     partition, mapping_names, geo_path, stg_processed_path, logger = args
     parquet_files:str = os.path.join(partition, "*.parquet")  # Read all the parquet files under a specific partition folder
-    
     # Read preprocessed/cleaned samples
-    df_partition:pl.LazyFrame= pl.scan_parquet(parquet_files).with_columns(pl.lit(partition.split("=")[1], dtype=pl.Utf8).alias("partition_dt"))
+    df_partition:pl.LazyFrame= pl.scan_parquet(parquet_files).with_columns(
+        pl.lit(partition.split("=")[1], dtype=pl.Utf8).alias("partition_dt")
+    )
     # Read existing parquet files under /processed directory
     existing_data:pl.LazyFrame = read_parquet_files(partition, stg_processed_path)
     # Read geospatial info
     geospatial_cols:list = ["objectid", "zone", "polygon_area", "polygon_centroid"]
     df_geo:pl.LazyFrame = pl.scan_ndjson(geo_path).select(*geospatial_cols)
-    # Boolean value to compute hasing keys
-    # compute_hash_keys:bool = True
 
     if not existing_data.limit(1).collect().is_empty():
         assert ("hashing_key" in existing_data.columns) and ("hashing_key" in df_partition), "Hashing column not found in existing AND new samples..Exiting"
@@ -454,18 +478,18 @@ def enrich_partition_samples(args:Tuple[str, list, pl.LazyFrame, str, logging.Lo
 # CATEGORICAL DATA ENCODING TO NUMERIC REPRESENTATIONS
 # =====================================================
 
-def one_hot_encode_daytime(df:pl.DataFrame, col:str) -> pl.DataFrame:
-    df = df.to_dummies(col, separator='_', drop_first=True)
+def one_hot_encode_column(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
+    df = df.collect().to_dummies(col, separator='_', drop_first=False).lazy()
     return df
 
-def is_holiday(df:pl.DataFrame, col:str, us_holidays:list):
+def is_holiday(df:pl.LazyFrame, col:str, us_holidays:list) -> pl.LazyFrame:
     target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
     df = df.with_columns(
         pl.col(target_col).cast(pl.Date).is_in(us_holidays).cast(pl.UInt8).alias(f"{col}_holiday")
     )
     return df
 
-def is_weekend(df:pl.DataFrame, col:str):
+def is_weekend(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
     target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'
     df = df.with_columns(
         pl.col(target_col).dt.weekday().is_in([6,7]).cast(pl.UInt8).alias(f"{col}_weekend")

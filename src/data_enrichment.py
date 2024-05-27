@@ -7,7 +7,6 @@ import time
 from argparse import ArgumentParser
 from multiprocessing import Pool
 from datetime import datetime
-from concurrent.futures import ThreadPoolExecutor, as_completed
 from commons.custom_logger import setup_logger, compute_execution_time
 from commons.staging_modules import init_stg_path, \
     get_latest_partitioned_folder, \
@@ -62,6 +61,7 @@ def main(logger_object:logging.Logger):
         for d in os.listdir(latest_partitioned_folder)
         if os.path.isdir(os.path.join(latest_partitioned_folder, d))
     ]
+    # partitions = ["/home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips/20240526/short_trip/partition_dt=202201"]
     #=================================================================
     # MAP NEW NAMES FOR THE GENERATED COLUMNS FROM GEOSPATIAL SAMPLES
     #=================================================================
@@ -104,8 +104,14 @@ def main(logger_object:logging.Logger):
         # with ThreadPoolExecutor(max_workers=num_threads) as executor:
         #     future_to_partition = [executor.submit(enrich_partition_samples, (partition, mapping_names, geo_path, stg_processed_path, logger_object)) for partition in partitions]
         num_processes:int = 3
+        # task_args:list = [(partition, mapping_names, geo_path, stg_processed_path, logger_object) for partition in partitions]
         task_args:list = [(partition, mapping_names, geo_path, stg_processed_path, logger_object) for partition in partitions]
         start_time:float = time.perf_counter()
+        # Option 1: old-fashioned for loop
+        # for tuple_arg in task_args:
+        #     enrich_partition_samples(tuple_arg)
+        
+        # Optiona 2: Parallel processing
         with Pool(num_processes) as pool:
             pool.map(enrich_partition_samples, task_args)
         hours, minutes, seconds = compute_execution_time(start_time)
