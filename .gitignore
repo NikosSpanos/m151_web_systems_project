@@ -7,6 +7,6 @@
 /data/*.csv
 /src/__pycache__
 /src/commons/__pycache__
-/mlruns
-/model_artifacts
+/ml_models
 /notes.txt
+/project_venv
