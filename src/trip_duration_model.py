@@ -15,13 +15,12 @@ from sklearn.pipeline import Pipeline
 from sklearn.ensemble import RandomForestRegressor, VotingRegressor
 from sklearn.linear_model import LinearRegression, Ridge, ElasticNet
 from commons.custom_logger import setup_logger, compute_execution_time
-from commons.staging_modules import retrieve_latest_modified_folder, \
-    one_hot_encode_column
+from commons.staging_modules import retrieve_latest_modified_folder
 from commons.ml_modules import init_model_artifacts, \
     ML_MODELING
 
 def duration_predictor(logger_object:logging.Logger):
-    
+
     #========================================================
     # INITIALIZE MODULE VARIABLES
     #========================================================
@@ -75,6 +74,7 @@ def duration_predictor(logger_object:logging.Logger):
 
     # Initializa ML_MODELING() class
     ml_modeling = ML_MODELING(
+        "trip_duration",
         args.model_regressor,
         model_artifacts_path,
         model_metadata_path,
@@ -101,7 +101,6 @@ def duration_predictor(logger_object:logging.Logger):
             'pickup_daytime': pl.Int64,
             'pickup_hour': pl.Int8,
             'pickup_weekday': pl.Int8,
-            'pickup_month': pl.Int8,
             'pickup_quarter': pl.Int8,
             'pickup_seconds': pl.Int64,
             'pickup_holiday': pl.UInt8,
@@ -113,8 +112,6 @@ def duration_predictor(logger_object:logging.Logger):
         iteration:int = 1
         for directory in parquet_files:
             df:pl.LazyFrame = pl.concat([pl.scan_parquet(os.path.join(directory, "*.parquet"))]).select(list(schema.keys()))
-            # print(df.columns)
-            #.select(list(schema.keys()))
             df_rows:int = df.select(pl.count()).collect().item(0,0)
             while df_rows > 0:
                 remaining_space = chunk_size - current_chunk_rows
@@ -141,8 +138,8 @@ def duration_predictor(logger_object:logging.Logger):
         shuffled_df:pl.DataFrame = chunk_df.collect().sample(fraction=1, with_replacement=False, shuffle=True, seed=1234)
         chunk_df:pl.LazyFrame = shuffled_df.lazy()
         # FILTER OUT OUTLIERS BASED ON PERCENTILES OF TRIP_DURATION
-        lowest_quantile = 0.10
-        highest_quantile = 0.95
+        lowest_quantile = 0.05
+        highest_quantile = 0.99
         percentile_bottom_bound = chunk_df.select("trip_duration").quantile(lowest_quantile).collect().item()
         percentile_top_bound = chunk_df.select("trip_duration").quantile(highest_quantile).collect().item()
         rounded_bottom_bound = np.floor(percentile_bottom_bound)
@@ -150,16 +147,8 @@ def duration_predictor(logger_object:logging.Logger):
         chunk_df = chunk_df.filter(pl.col("trip_duration") <= percentile_top_bound)
         # COMPUTE TOTAL REMAINING ROWS AFTER QUANTIZATION
         chunk_df_height:int = chunk_df.select(pl.count()).collect().item()
-        # print(chunk_df_height)
         # ADD ROW INDEX PER ROW FOR QUICK & SIMPLE TRAIN/TEST SPLIT
         chunk_df = chunk_df.with_row_count("row_index")
-        # # ONE-HOT ENCODE (PICKUP DAYTIME) COLUMN
-        # print("here")
-        # chunk_df = one_hot_encode_column(chunk_df, "pickup_daytime")
-        # chunk_df = one_hot_encode_column(chunk_df, "dropoff_daytime")
-        # print(chunk_df.columns)
-        # print(chunk_df.select(["pickup_daytime_1"]).unique().collect())
-        # exit()
         # TRAIN-TEST SPLIT LAZYFRAMES
         chunk_train_data:pl.LazyFrame = chunk_df.filter(
             pl.col("row_index").le(int(train_test_split_perce * chunk_df_height))
@@ -170,27 +159,14 @@ def duration_predictor(logger_object:logging.Logger):
         assert (chunk_train_data.select(pl.count()).collect().item() > 0) and (chunk_test_data.select(pl.count()).collect().item() > 0), "Train-Test samples are empty. Check logs for errors."
         # COMPUTE TARGET COLUMN STANDARD DEVIATION FOR COMPARISON WITH COMPUTED EVALUATION METRIC
         target_column_std = chunk_df.collect().describe().to_dict()['trip_duration'][3]
-        # SELECT FEATURES COLUMN(s) AND TARGET VALUE
-        X_features:list = [
-            "trip_distance", # Will be scaled
-            "pickup_daytime",
-            "pickup_hour", 
-            "pickup_weekday",
-            "pickup_month", 
-            "pickup_quarter", # Will be scaled
-            "pickup_seconds", # Will be scaled
-            "pickup_holiday",
-            "pickup_weekend",
-            "haversine_centroid_distance" # Will be scaled
-        ]
-        y_features:list = ["trip_duration"]
+        y_features:str = "trip_duration"
         # ISOLATED SELECTED FEATURES COLUMN(s) AND TARGET VALUE
         X_train, y_train = (
-            chunk_train_data.select(X_features),
+            chunk_train_data.drop([y_features, "row_index"]),
             chunk_train_data.select(y_features)
         )
         X_test, y_test = (
-            chunk_test_data.select(X_features),
+            chunk_test_data.drop([y_features, "row_index"]),
             chunk_test_data.select(y_features)
         )
         # FROM LAZYFRAMES TO NUMPY VECTORS (SKLEARN ACCEPTS EITHER NUMPY VECTORS OR PANDAS DATAFRAMES FOR OPTIMIZED COMPUTATIONS)
@@ -275,6 +251,8 @@ def duration_predictor(logger_object:logging.Logger):
         y_pred = pipeline_model.predict(X_test_vectors)
         residuals = y_test_vectors - y_pred
         chunk_rmse = ml_modeling.evaluation_metric(y_test_vectors, y_pred)
+        chunk_r2 = ml_modeling.r_squared(y_test_vectors, y_pred)
+        chunk_mae = ml_modeling.mae(y_test_vectors, y_pred)
         logger_object.info(f'Chunk {iteration} | {args.model_regressor} RMSE: {chunk_rmse}')
         
         if chunk_rmse < best_rmse:
@@ -298,6 +276,8 @@ def duration_predictor(logger_object:logging.Logger):
         model_scores[f"chunk_{iteration}"] = {
             "model_path": ml_modeling.model_artifact,
             "rmse": chunk_rmse,
+            "r2": chunk_r2,
+            "mae": chunk_mae,
             "percentage_improvement": cummulative_percentage_improvement if iteration!=1 else 0.00
         }
         if iteration == 1:
@@ -313,7 +293,7 @@ if __name__ == "__main__":
     logger = setup_logger(project_folder, log_filename)
     try:
         duration_predictor(logger)
-        logger.info("SUCCESS: duration recommendation model completed.")
+        logger.info("SUCCESS: Duration recommendation model completed.")
     except Exception as e:
         logger.error(e)
-        logger.error("FAIL: duration recommendation model failed.")
+        logger.error("FAIL: Duration recommendation model failed.")

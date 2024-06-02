@@ -14,3 +14,4 @@ opencage==2.4.0
 openrouteservice==2.3.3
 holidays==0.48
 seaborn==0.13.2
+redis==5.0.4

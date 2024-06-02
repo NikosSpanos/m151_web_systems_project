@@ -1,0 +1,434 @@
+2024-06-02 10:44:26 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/models already exists. Program will continue.
+2024-06-02 10:44:26 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/residuals already exists. Program will continue.
+2024-06-02 10:44:26 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/metadata already exists. Program will continue.
+2024-06-02 10:44:27 - INFO - 
+
+2024-06-02 10:44:27 - INFO - Chunk 1 | Started model training process
+2024-06-02 10:44:30 - INFO - Chunk 1 | linear_regressor RMSE: 4.259958184749492
+2024-06-02 10:44:30 - INFO - Chunk 1 | Plot the residuals and save them to PNG file.
+2024-06-02 10:44:30 - INFO - Chunk 1 | Model training has a good fit on never-seen-before data (RMSE: 4.259958184749492 < STD: 11.32146755479903).
+2024-06-02 10:44:30 - INFO - Chunk 1 | Patience = 0
+2024-06-02 10:44:30 - INFO - Chunk 1 | Completed model training process after: 00:00:03
+2024-06-02 10:44:30 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:30 - INFO - 
+
+2024-06-02 10:44:30 - INFO - Chunk 2 | Started model training process
+2024-06-02 10:44:33 - INFO - Chunk 2 | linear_regressor RMSE: 3.855415618543723
+2024-06-02 10:44:33 - INFO - Chunk 2 | Plot the residuals and save them to PNG file.
+2024-06-02 10:44:34 - INFO - Chunk 2 | Model training has a good fit on never-seen-before data (RMSE: 3.855415618543723 < STD: 10.365512437860945).
+2024-06-02 10:44:34 - INFO - Chunk 2 | Patience = 0
+2024-06-02 10:44:34 - INFO - Chunk 2 | Completed model training process after: 00:00:03
+2024-06-02 10:44:34 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:34 - INFO - 
+
+2024-06-02 10:44:34 - INFO - Chunk 3 | Started model training process
+2024-06-02 10:44:37 - INFO - Chunk 3 | linear_regressor RMSE: 4.004484585460976
+2024-06-02 10:44:37 - INFO - Chunk 3 | Patience = 1
+2024-06-02 10:44:37 - INFO - Chunk 3 | Completed model training process after: 00:00:02
+2024-06-02 10:44:37 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:37 - INFO - 
+
+2024-06-02 10:44:37 - INFO - Chunk 4 | Started model training process
+2024-06-02 10:44:39 - INFO - Chunk 4 | linear_regressor RMSE: 3.759662134724465
+2024-06-02 10:44:39 - INFO - Chunk 4 | Plot the residuals and save them to PNG file.
+2024-06-02 10:44:40 - INFO - Chunk 4 | Model training has a good fit on never-seen-before data (RMSE: 3.759662134724465 < STD: 10.465599886815745).
+2024-06-02 10:44:40 - INFO - Chunk 4 | Patience = 0
+2024-06-02 10:44:40 - INFO - Chunk 4 | Completed model training process after: 00:00:03
+2024-06-02 10:44:40 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:40 - INFO - 
+
+2024-06-02 10:44:40 - INFO - Chunk 5 | Started model training process
+2024-06-02 10:44:43 - INFO - Chunk 5 | linear_regressor RMSE: 4.047299976546983
+2024-06-02 10:44:43 - INFO - Chunk 5 | Patience = 1
+2024-06-02 10:44:43 - INFO - Chunk 5 | Completed model training process after: 00:00:03
+2024-06-02 10:44:43 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:43 - INFO - 
+
+2024-06-02 10:44:43 - INFO - Chunk 6 | Started model training process
+2024-06-02 10:44:46 - INFO - Chunk 6 | linear_regressor RMSE: 3.6188028963815815
+2024-06-02 10:44:46 - INFO - Chunk 6 | Plot the residuals and save them to PNG file.
+2024-06-02 10:44:47 - INFO - Chunk 6 | Model training has a good fit on never-seen-before data (RMSE: 3.6188028963815815 < STD: 9.862807211809107).
+2024-06-02 10:44:47 - INFO - Chunk 6 | Patience = 0
+2024-06-02 10:44:47 - INFO - Chunk 6 | Completed model training process after: 00:00:03
+2024-06-02 10:44:47 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:47 - INFO - 
+
+2024-06-02 10:44:47 - INFO - Chunk 7 | Started model training process
+2024-06-02 10:44:50 - INFO - Chunk 7 | linear_regressor RMSE: 3.886087785483688
+2024-06-02 10:44:50 - INFO - Chunk 7 | Patience = 1
+2024-06-02 10:44:50 - INFO - Chunk 7 | Completed model training process after: 00:00:03
+2024-06-02 10:44:50 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:50 - INFO - 
+
+2024-06-02 10:44:50 - INFO - Chunk 8 | Started model training process
+2024-06-02 10:44:53 - INFO - Chunk 8 | linear_regressor RMSE: 3.9172029328912115
+2024-06-02 10:44:53 - INFO - Chunk 8 | Patience = 2
+2024-06-02 10:44:53 - INFO - Chunk 8 | Completed model training process after: 00:00:02
+2024-06-02 10:44:53 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:53 - INFO - 
+
+2024-06-02 10:44:53 - INFO - Chunk 9 | Started model training process
+2024-06-02 10:44:56 - INFO - Chunk 9 | linear_regressor RMSE: 4.287444619720826
+2024-06-02 10:44:56 - INFO - Chunk 9 | Patience = 3
+2024-06-02 10:44:56 - INFO - Chunk 9 | Completed model training process after: 00:00:03
+2024-06-02 10:44:56 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:44:56 - INFO - 
+
+2024-06-02 10:44:56 - INFO - Chunk 10 | Started model training process
+2024-06-02 10:45:00 - INFO - Chunk 10 | linear_regressor RMSE: 4.287184968105916
+2024-06-02 10:45:00 - INFO - Chunk 10 | Patience = 4
+2024-06-02 10:45:00 - INFO - Chunk 10 | Completed model training process after: 00:00:03
+2024-06-02 10:45:00 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:00 - INFO - 
+
+2024-06-02 10:45:00 - INFO - Chunk 11 | Started model training process
+2024-06-02 10:45:04 - INFO - Chunk 11 | linear_regressor RMSE: 4.22017935976792
+2024-06-02 10:45:04 - INFO - Chunk 11 | Patience = 5
+2024-06-02 10:45:04 - INFO - Chunk 11 | Completed model training process after: 00:00:04
+2024-06-02 10:45:04 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:04 - INFO - 
+
+2024-06-02 10:45:04 - INFO - Chunk 12 | Started model training process
+2024-06-02 10:45:08 - INFO - Chunk 12 | linear_regressor RMSE: 3.859601522176138
+2024-06-02 10:45:08 - INFO - Chunk 12 | Patience = 6
+2024-06-02 10:45:08 - INFO - Chunk 12 | Completed model training process after: 00:00:03
+2024-06-02 10:45:08 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:08 - INFO - 
+
+2024-06-02 10:45:08 - INFO - Chunk 13 | Started model training process
+2024-06-02 10:45:12 - INFO - Chunk 13 | linear_regressor RMSE: 3.870501086074447
+2024-06-02 10:45:12 - INFO - Chunk 13 | Patience = 7
+2024-06-02 10:45:12 - INFO - Chunk 13 | Completed model training process after: 00:00:03
+2024-06-02 10:45:12 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:12 - INFO - 
+
+2024-06-02 10:45:12 - INFO - Chunk 14 | Started model training process
+2024-06-02 10:45:16 - INFO - Chunk 14 | linear_regressor RMSE: 4.082998008882484
+2024-06-02 10:45:16 - INFO - Chunk 14 | Patience = 8
+2024-06-02 10:45:16 - INFO - Chunk 14 | Completed model training process after: 00:00:03
+2024-06-02 10:45:16 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:16 - INFO - 
+
+2024-06-02 10:45:16 - INFO - Chunk 15 | Started model training process
+2024-06-02 10:45:19 - INFO - Chunk 15 | linear_regressor RMSE: 3.861160593715994
+2024-06-02 10:45:19 - INFO - Chunk 15 | Patience = 9
+2024-06-02 10:45:19 - INFO - Chunk 15 | Completed model training process after: 00:00:03
+2024-06-02 10:45:19 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:19 - INFO - 
+
+2024-06-02 10:45:19 - INFO - Chunk 16 | Started model training process
+2024-06-02 10:45:22 - INFO - Chunk 16 | linear_regressor RMSE: 4.143759692612477
+2024-06-02 10:45:22 - INFO - Chunk 16 | Patience = 10
+2024-06-02 10:45:22 - INFO - Chunk 16 | Completed model training process after: 00:00:02
+2024-06-02 10:45:22 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:22 - INFO - 
+
+2024-06-02 10:45:22 - INFO - Chunk 17 | Started model training process
+2024-06-02 10:45:24 - INFO - Chunk 17 | linear_regressor RMSE: 3.914088071151944
+2024-06-02 10:45:24 - INFO - Chunk 17 | Patience = 11
+2024-06-02 10:45:24 - INFO - Chunk 17 | Completed model training process after: 00:00:02
+2024-06-02 10:45:24 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:24 - INFO - 
+
+2024-06-02 10:45:24 - INFO - Chunk 18 | Started model training process
+2024-06-02 10:45:28 - INFO - Chunk 18 | linear_regressor RMSE: 4.280208020925607
+2024-06-02 10:45:28 - INFO - Chunk 18 | Patience = 12
+2024-06-02 10:45:28 - INFO - Chunk 18 | Completed model training process after: 00:00:03
+2024-06-02 10:45:28 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:28 - INFO - 
+
+2024-06-02 10:45:28 - INFO - Chunk 19 | Started model training process
+2024-06-02 10:45:30 - INFO - Chunk 19 | linear_regressor RMSE: 3.781645715966528
+2024-06-02 10:45:30 - INFO - Chunk 19 | Patience = 13
+2024-06-02 10:45:30 - INFO - Chunk 19 | Completed model training process after: 00:00:02
+2024-06-02 10:45:30 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:30 - INFO - 
+
+2024-06-02 10:45:30 - INFO - Chunk 20 | Started model training process
+2024-06-02 10:45:33 - INFO - Chunk 20 | linear_regressor RMSE: 3.831793803695273
+2024-06-02 10:45:33 - INFO - Chunk 20 | Patience = 14
+2024-06-02 10:45:33 - INFO - Chunk 20 | Completed model training process after: 00:00:03
+2024-06-02 10:45:33 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:33 - INFO - 
+
+2024-06-02 10:45:33 - INFO - Chunk 21 | Started model training process
+2024-06-02 10:45:36 - INFO - Chunk 21 | linear_regressor RMSE: 3.9905273313039697
+2024-06-02 10:45:36 - INFO - Chunk 21 | Patience = 15
+2024-06-02 10:45:36 - INFO - Chunk 21 | Completed model training process after: 00:00:02
+2024-06-02 10:45:36 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:36 - INFO - 
+
+2024-06-02 10:45:36 - INFO - Chunk 22 | Started model training process
+2024-06-02 10:45:39 - INFO - Chunk 22 | linear_regressor RMSE: 3.6236703039068443
+2024-06-02 10:45:39 - INFO - Chunk 22 | Patience = 16
+2024-06-02 10:45:39 - INFO - Chunk 22 | Completed model training process after: 00:00:03
+2024-06-02 10:45:39 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:39 - INFO - 
+
+2024-06-02 10:45:39 - INFO - Chunk 23 | Started model training process
+2024-06-02 10:45:42 - INFO - Chunk 23 | linear_regressor RMSE: 4.3674028191839405
+2024-06-02 10:45:42 - INFO - Chunk 23 | Patience = 17
+2024-06-02 10:45:42 - INFO - Chunk 23 | Completed model training process after: 00:00:03
+2024-06-02 10:45:42 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:42 - INFO - 
+
+2024-06-02 10:45:42 - INFO - Chunk 24 | Started model training process
+2024-06-02 10:45:46 - INFO - Chunk 24 | linear_regressor RMSE: 3.6760336093577823
+2024-06-02 10:45:46 - INFO - Chunk 24 | Patience = 18
+2024-06-02 10:45:46 - INFO - Chunk 24 | Completed model training process after: 00:00:03
+2024-06-02 10:45:46 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:46 - INFO - 
+
+2024-06-02 10:45:46 - INFO - Chunk 25 | Started model training process
+2024-06-02 10:45:52 - INFO - Chunk 25 | linear_regressor RMSE: 3.9785013588817635
+2024-06-02 10:45:52 - INFO - Chunk 25 | Patience = 19
+2024-06-02 10:45:52 - INFO - Chunk 25 | Completed model training process after: 00:00:05
+2024-06-02 10:45:52 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:52 - INFO - 
+
+2024-06-02 10:45:52 - INFO - Chunk 26 | Started model training process
+2024-06-02 10:45:58 - INFO - Chunk 26 | linear_regressor RMSE: 3.8447162457441793
+2024-06-02 10:45:58 - INFO - Chunk 26 | Patience = 20
+2024-06-02 10:45:58 - INFO - Chunk 26 | Completed model training process after: 00:00:06
+2024-06-02 10:45:58 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:45:58 - INFO - 
+
+2024-06-02 10:45:58 - INFO - Chunk 27 | Started model training process
+2024-06-02 10:46:06 - INFO - Chunk 27 | linear_regressor RMSE: 2.7970180472859756
+2024-06-02 10:46:06 - INFO - Chunk 27 | Plot the residuals and save them to PNG file.
+2024-06-02 10:46:07 - INFO - Chunk 27 | Model training has a good fit on never-seen-before data (RMSE: 2.7970180472859756 < STD: 7.092323425931618).
+2024-06-02 10:46:07 - INFO - Chunk 27 | Patience = 0
+2024-06-02 10:46:07 - INFO - Chunk 27 | Completed model training process after: 00:00:08
+2024-06-02 10:46:07 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:07 - INFO - 
+
+2024-06-02 10:46:07 - INFO - Chunk 28 | Started model training process
+2024-06-02 10:46:12 - INFO - Chunk 28 | linear_regressor RMSE: 3.619406219308877
+2024-06-02 10:46:12 - INFO - Chunk 28 | Patience = 1
+2024-06-02 10:46:12 - INFO - Chunk 28 | Completed model training process after: 00:00:05
+2024-06-02 10:46:12 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:12 - INFO - 
+
+2024-06-02 10:46:12 - INFO - Chunk 29 | Started model training process
+2024-06-02 10:46:16 - INFO - Chunk 29 | linear_regressor RMSE: 3.6658449993357065
+2024-06-02 10:46:16 - INFO - Chunk 29 | Patience = 2
+2024-06-02 10:46:16 - INFO - Chunk 29 | Completed model training process after: 00:00:03
+2024-06-02 10:46:16 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:16 - INFO - 
+
+2024-06-02 10:46:16 - INFO - Chunk 30 | Started model training process
+2024-06-02 10:46:23 - INFO - Chunk 30 | linear_regressor RMSE: 4.170180870939492
+2024-06-02 10:46:23 - INFO - Chunk 30 | Patience = 3
+2024-06-02 10:46:23 - INFO - Chunk 30 | Completed model training process after: 00:00:06
+2024-06-02 10:46:23 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:23 - INFO - 
+
+2024-06-02 10:46:23 - INFO - Chunk 31 | Started model training process
+2024-06-02 10:46:30 - INFO - Chunk 31 | linear_regressor RMSE: 4.07609288312826
+2024-06-02 10:46:30 - INFO - Chunk 31 | Patience = 4
+2024-06-02 10:46:30 - INFO - Chunk 31 | Completed model training process after: 00:00:07
+2024-06-02 10:46:30 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:30 - INFO - 
+
+2024-06-02 10:46:30 - INFO - Chunk 32 | Started model training process
+2024-06-02 10:46:36 - INFO - Chunk 32 | linear_regressor RMSE: 3.748238629155027
+2024-06-02 10:46:36 - INFO - Chunk 32 | Patience = 5
+2024-06-02 10:46:36 - INFO - Chunk 32 | Completed model training process after: 00:00:06
+2024-06-02 10:46:36 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:36 - INFO - 
+
+2024-06-02 10:46:36 - INFO - Chunk 33 | Started model training process
+2024-06-02 10:46:42 - INFO - Chunk 33 | linear_regressor RMSE: 3.7402698086673496
+2024-06-02 10:46:42 - INFO - Chunk 33 | Patience = 6
+2024-06-02 10:46:42 - INFO - Chunk 33 | Completed model training process after: 00:00:05
+2024-06-02 10:46:42 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:42 - INFO - 
+
+2024-06-02 10:46:42 - INFO - Chunk 34 | Started model training process
+2024-06-02 10:46:47 - INFO - Chunk 34 | linear_regressor RMSE: 3.890407532441404
+2024-06-02 10:46:47 - INFO - Chunk 34 | Patience = 7
+2024-06-02 10:46:47 - INFO - Chunk 34 | Completed model training process after: 00:00:04
+2024-06-02 10:46:47 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:47 - INFO - 
+
+2024-06-02 10:46:47 - INFO - Chunk 35 | Started model training process
+2024-06-02 10:46:52 - INFO - Chunk 35 | linear_regressor RMSE: 3.841599004771247
+2024-06-02 10:46:52 - INFO - Chunk 35 | Patience = 8
+2024-06-02 10:46:52 - INFO - Chunk 35 | Completed model training process after: 00:00:05
+2024-06-02 10:46:52 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:52 - INFO - 
+
+2024-06-02 10:46:52 - INFO - Chunk 36 | Started model training process
+2024-06-02 10:46:57 - INFO - Chunk 36 | linear_regressor RMSE: 3.719760491039374
+2024-06-02 10:46:57 - INFO - Chunk 36 | Patience = 9
+2024-06-02 10:46:57 - INFO - Chunk 36 | Completed model training process after: 00:00:05
+2024-06-02 10:46:57 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:46:57 - INFO - 
+
+2024-06-02 10:46:57 - INFO - Chunk 37 | Started model training process
+2024-06-02 10:47:03 - INFO - Chunk 37 | linear_regressor RMSE: 4.083395837685697
+2024-06-02 10:47:03 - INFO - Chunk 37 | Patience = 10
+2024-06-02 10:47:03 - INFO - Chunk 37 | Completed model training process after: 00:00:05
+2024-06-02 10:47:03 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:03 - INFO - 
+
+2024-06-02 10:47:03 - INFO - Chunk 38 | Started model training process
+2024-06-02 10:47:07 - INFO - Chunk 38 | linear_regressor RMSE: 4.151602205269596
+2024-06-02 10:47:07 - INFO - Chunk 38 | Patience = 11
+2024-06-02 10:47:07 - INFO - Chunk 38 | Completed model training process after: 00:00:03
+2024-06-02 10:47:07 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:07 - INFO - 
+
+2024-06-02 10:47:07 - INFO - Chunk 39 | Started model training process
+2024-06-02 10:47:12 - INFO - Chunk 39 | linear_regressor RMSE: 3.9274027149167394
+2024-06-02 10:47:12 - INFO - Chunk 39 | Patience = 12
+2024-06-02 10:47:12 - INFO - Chunk 39 | Completed model training process after: 00:00:04
+2024-06-02 10:47:12 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:12 - INFO - 
+
+2024-06-02 10:47:12 - INFO - Chunk 40 | Started model training process
+2024-06-02 10:47:17 - INFO - Chunk 40 | linear_regressor RMSE: 3.4294426151301103
+2024-06-02 10:47:17 - INFO - Chunk 40 | Patience = 13
+2024-06-02 10:47:17 - INFO - Chunk 40 | Completed model training process after: 00:00:05
+2024-06-02 10:47:17 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:17 - INFO - 
+
+2024-06-02 10:47:17 - INFO - Chunk 41 | Started model training process
+2024-06-02 10:47:22 - INFO - Chunk 41 | linear_regressor RMSE: 4.383075323571384
+2024-06-02 10:47:22 - INFO - Chunk 41 | Patience = 14
+2024-06-02 10:47:22 - INFO - Chunk 41 | Completed model training process after: 00:00:04
+2024-06-02 10:47:22 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:22 - INFO - 
+
+2024-06-02 10:47:22 - INFO - Chunk 42 | Started model training process
+2024-06-02 10:47:26 - INFO - Chunk 42 | linear_regressor RMSE: 3.3476927888254906
+2024-06-02 10:47:26 - INFO - Chunk 42 | Patience = 15
+2024-06-02 10:47:26 - INFO - Chunk 42 | Completed model training process after: 00:00:04
+2024-06-02 10:47:26 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:26 - INFO - 
+
+2024-06-02 10:47:26 - INFO - Chunk 43 | Started model training process
+2024-06-02 10:47:30 - INFO - Chunk 43 | linear_regressor RMSE: 3.31771894785471
+2024-06-02 10:47:30 - INFO - Chunk 43 | Patience = 16
+2024-06-02 10:47:30 - INFO - Chunk 43 | Completed model training process after: 00:00:03
+2024-06-02 10:47:30 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:30 - INFO - 
+
+2024-06-02 10:47:30 - INFO - Chunk 44 | Started model training process
+2024-06-02 10:47:33 - INFO - Chunk 44 | linear_regressor RMSE: 3.4779574847614607
+2024-06-02 10:47:33 - INFO - Chunk 44 | Patience = 17
+2024-06-02 10:47:33 - INFO - Chunk 44 | Completed model training process after: 00:00:03
+2024-06-02 10:47:33 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:33 - INFO - 
+
+2024-06-02 10:47:33 - INFO - Chunk 45 | Started model training process
+2024-06-02 10:47:37 - INFO - Chunk 45 | linear_regressor RMSE: 3.817009624665548
+2024-06-02 10:47:37 - INFO - Chunk 45 | Patience = 18
+2024-06-02 10:47:37 - INFO - Chunk 45 | Completed model training process after: 00:00:03
+2024-06-02 10:47:37 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:37 - INFO - 
+
+2024-06-02 10:47:37 - INFO - Chunk 46 | Started model training process
+2024-06-02 10:47:41 - INFO - Chunk 46 | linear_regressor RMSE: 3.5783397336694773
+2024-06-02 10:47:41 - INFO - Chunk 46 | Patience = 19
+2024-06-02 10:47:41 - INFO - Chunk 46 | Completed model training process after: 00:00:04
+2024-06-02 10:47:41 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:41 - INFO - 
+
+2024-06-02 10:47:41 - INFO - Chunk 47 | Started model training process
+2024-06-02 10:47:45 - INFO - Chunk 47 | linear_regressor RMSE: 2.9956515470378657
+2024-06-02 10:47:45 - INFO - Chunk 47 | Patience = 20
+2024-06-02 10:47:45 - INFO - Chunk 47 | Completed model training process after: 00:00:03
+2024-06-02 10:47:45 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:45 - INFO - 
+
+2024-06-02 10:47:45 - INFO - Chunk 48 | Started model training process
+2024-06-02 10:47:50 - INFO - Chunk 48 | linear_regressor RMSE: 4.561082273234517
+2024-06-02 10:47:50 - INFO - Chunk 48 | Patience = 21
+2024-06-02 10:47:50 - INFO - Chunk 48 | Completed model training process after: 00:00:04
+2024-06-02 10:47:50 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:50 - INFO - 
+
+2024-06-02 10:47:50 - INFO - Chunk 49 | Started model training process
+2024-06-02 10:47:53 - INFO - Chunk 49 | linear_regressor RMSE: 3.337800791283954
+2024-06-02 10:47:53 - INFO - Chunk 49 | Patience = 22
+2024-06-02 10:47:53 - INFO - Chunk 49 | Completed model training process after: 00:00:03
+2024-06-02 10:47:53 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:53 - INFO - 
+
+2024-06-02 10:47:53 - INFO - Chunk 50 | Started model training process
+2024-06-02 10:47:57 - INFO - Chunk 50 | linear_regressor RMSE: 4.17818829017095
+2024-06-02 10:47:57 - INFO - Chunk 50 | Patience = 23
+2024-06-02 10:47:57 - INFO - Chunk 50 | Completed model training process after: 00:00:03
+2024-06-02 10:47:57 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:47:57 - INFO - 
+
+2024-06-02 10:47:57 - INFO - Chunk 51 | Started model training process
+2024-06-02 10:48:01 - INFO - Chunk 51 | linear_regressor RMSE: 4.191795537284648
+2024-06-02 10:48:01 - INFO - Chunk 51 | Patience = 24
+2024-06-02 10:48:01 - INFO - Chunk 51 | Completed model training process after: 00:00:03
+2024-06-02 10:48:01 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:01 - INFO - 
+
+2024-06-02 10:48:01 - INFO - Chunk 52 | Started model training process
+2024-06-02 10:48:04 - INFO - Chunk 52 | linear_regressor RMSE: 4.2571678787968334
+2024-06-02 10:48:04 - INFO - Chunk 52 | Patience = 25
+2024-06-02 10:48:04 - INFO - Chunk 52 | Completed model training process after: 00:00:03
+2024-06-02 10:48:04 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:04 - INFO - 
+
+2024-06-02 10:48:04 - INFO - Chunk 53 | Started model training process
+2024-06-02 10:48:08 - INFO - Chunk 53 | linear_regressor RMSE: 4.033716688695131
+2024-06-02 10:48:08 - INFO - Chunk 53 | Patience = 26
+2024-06-02 10:48:08 - INFO - Chunk 53 | Completed model training process after: 00:00:03
+2024-06-02 10:48:08 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:08 - INFO - 
+
+2024-06-02 10:48:08 - INFO - Chunk 54 | Started model training process
+2024-06-02 10:48:11 - INFO - Chunk 54 | linear_regressor RMSE: 4.149585887319594
+2024-06-02 10:48:11 - INFO - Chunk 54 | Patience = 27
+2024-06-02 10:48:11 - INFO - Chunk 54 | Completed model training process after: 00:00:03
+2024-06-02 10:48:11 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:11 - INFO - 
+
+2024-06-02 10:48:11 - INFO - Chunk 55 | Started model training process
+2024-06-02 10:48:14 - INFO - Chunk 55 | linear_regressor RMSE: 3.5960299982744797
+2024-06-02 10:48:14 - INFO - Chunk 55 | Patience = 28
+2024-06-02 10:48:14 - INFO - Chunk 55 | Completed model training process after: 00:00:03
+2024-06-02 10:48:14 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:14 - INFO - 
+
+2024-06-02 10:48:14 - INFO - Chunk 56 | Started model training process
+2024-06-02 10:48:18 - INFO - Chunk 56 | linear_regressor RMSE: 3.785318348259316
+2024-06-02 10:48:18 - INFO - Chunk 56 | Patience = 29
+2024-06-02 10:48:18 - INFO - Chunk 56 | Completed model training process after: 00:00:03
+2024-06-02 10:48:18 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:18 - INFO - 
+
+2024-06-02 10:48:18 - INFO - Chunk 57 | Started model training process
+2024-06-02 10:48:21 - INFO - Chunk 57 | linear_regressor RMSE: 3.363648265690189
+2024-06-02 10:48:21 - INFO - Chunk 57 | Patience = 30
+2024-06-02 10:48:21 - INFO - Chunk 57 | Completed model training process after: 00:00:03
+2024-06-02 10:48:21 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:21 - INFO - 
+
+2024-06-02 10:48:21 - INFO - Chunk 58 | Started model training process
+2024-06-02 10:48:24 - INFO - Chunk 58 | linear_regressor RMSE: 4.339799482491838
+2024-06-02 10:48:24 - INFO - Chunk 58 | Patience = 31
+2024-06-02 10:48:24 - INFO - Chunk 58 | Completed model training process after: 00:00:03
+2024-06-02 10:48:24 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:24 - INFO - 
+
+2024-06-02 10:48:24 - INFO - Chunk 59 | Started model training process
+2024-06-02 10:48:28 - INFO - Chunk 59 | linear_regressor RMSE: 3.340205250944549
+2024-06-02 10:48:28 - INFO - Chunk 59 | Patience = 32
+2024-06-02 10:48:28 - INFO - Chunk 59 | Completed model training process after: 00:00:03
+2024-06-02 10:48:28 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:28 - INFO - 
+
+2024-06-02 10:48:28 - INFO - Chunk 60 | Started model training process
+2024-06-02 10:48:30 - INFO - Chunk 60 | linear_regressor RMSE: 3.9550103544303687
+2024-06-02 10:48:30 - INFO - Chunk 60 | Patience = 33
+2024-06-02 10:48:30 - INFO - Chunk 60 | Completed model training process after: 00:00:02
+2024-06-02 10:48:30 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-02 10:48:30 - INFO - SUCCESS: Cost recommendation model completed.

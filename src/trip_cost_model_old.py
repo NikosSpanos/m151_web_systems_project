@@ -7,10 +7,8 @@ import configparser
 import os
 import mlflow
 import mlflow.sklearn
-import joblib
 import setuptools
 import distutils
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.model_selection import train_test_split
 from datetime import datetime
 sys.path.append('./src')
@@ -24,7 +22,7 @@ from ml_modules import label_encode_column, \
     load_label_encoder, \
     save_label_encoder
 
-def tolls_predictor(logger_object:logging.Logger):
+def cost_predictor(logger_object:logging.Logger):
 
     #========================================================
     # INITIALIZE MODULE VARIABLES
@@ -35,9 +33,8 @@ def tolls_predictor(logger_object:logging.Logger):
     config.read(os.path.join(parent_dir, "config", "config.ini"))
     application_path = config.get("settings", "application_path")
     samples_str = config.get("ml-settings", "samples_str")
-    ml_model_name = config.get("ml-settings", "tolls_model_name")
+    ml_model_name = config.get("ml-settings", "cost_model_name")
     split_perce:float = float(config.get("ml-settings", "train_test_split_perce"))
-    scaler_model:str = config.get("ml-settings", "scaler_model")
     execution_timestamp:datetime = datetime.now().strftime('%Y%m%d')
     relative_path:str = "{0}/data/staging/processed/{1}".format(application_path, execution_timestamp)
     artifact_path:str = os.path.join(application_path, "model_artifacts", execution_timestamp)
@@ -45,7 +42,7 @@ def tolls_predictor(logger_object:logging.Logger):
     RANDOM_SEED:int = 42
     np.random.seed(RANDOM_SEED)
 
-     #========================================================
+    #========================================================
     # READ THE PROCESSED-DATA JSON FILE FROM STAGING FOLDER
     #========================================================
     df = pl.read_json(retrieve_latest_modified_file(relative_path, True, samples_str))
@@ -68,21 +65,11 @@ def tolls_predictor(logger_object:logging.Logger):
             save_label_encoder(label_encoder, artifact_path + "/{0}_label_encoder.joblib".format(name))
 
     #========================================================
-    # FIX SCALING OF FARE_AMOUNT
-    #========================================================
-    if "minmax" in str.lower(scaler_model):
-        scaler = MinMaxScaler()
-    else:
-        scaler = StandardScaler()
-    scaler.fit(df[["fare_amount"]])
-    df["fare_amount_standardized"] = scaler.transform(df[["fare_amount"]])
-
-    #========================================================
     # ISOLATE X, Y FEATURES AND SPLIT THEM TO TRAIN/TEST SAMPLES
     #========================================================
-    # x_features = ["puzone_encoded", "dozone_encoded", "trip_distance", "pickup_daytime", "trip_duration", "fare_amount_standardized"]
-    x_features = ["puzone_encoded", "dozone_encoded", "pickup_daytime", "trip_duration", "fare_amount_standardized"]
-    y_features = ["tolls_amount"]
+    # x_features = ["puzone_encoded", "dozone_encoded", "trip_distance", "pickup_daytime", "trip_duration"]
+    x_features = ["puzone_encoded", "dozone_encoded", "pickup_daytime", "trip_duration"]
+    y_features = ["fare_amount"]
     X = df[x_features]
     y = df[y_features]
     logger_object.info(y.describe())
@@ -167,17 +154,13 @@ def tolls_predictor(logger_object:logging.Logger):
                 logger_object.info("========================================================================================")
             mlflow.end_run()
     logger_object.info("Completed training/evaluating {0}-model".format(ml_model_name))
-    if "minmax" in str.lower(scaler_model):
-        joblib.dump(scaler, artifact_path + "/min_max_scaler.joblib")
-    elif "standard" in str.lower(scaler_model):
-        joblib.dump(scaler, artifact_path + "/standard_scaler.joblib")
 
 if __name__ == "__main__":
-    log_filename = "trip_tolls_model/tolls_recommendation_model_logs_{0}.txt".format(datetime.now().strftime('%Y_%m_%d_%H_%M'))
+    log_filename = "trip_cost_model/cost_recommendation_model_logs_{0}.txt".format(datetime.now().strftime('%Y_%m_%d_%H_%M'))
     logger = setup_logger(log_filename)
     try:
-        tolls_predictor(logger)
-        logger.info("SUCCESS: tolls recommendation model completed.")
+        cost_predictor(logger)
+        logger.info("SUCCESS: cost recommendation model completed.")
     except Exception as e:
         logger.error(e)
-        logger.error("FAIL: tolls recommendation model failed.")
+        logger.error("FAIL: cost recommendation model failed.")

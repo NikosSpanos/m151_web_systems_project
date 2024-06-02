@@ -1,0 +1,460 @@
+2024-05-27 22:43:54 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240527/short_trip/models already exists. Program will continue.
+2024-05-27 22:43:54 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240527/short_trip/residuals already exists. Program will continue.
+2024-05-27 22:43:54 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240527/short_trip/metadata already exists. Program will continue.
+2024-05-27 22:43:54 - INFO - 
+
+2024-05-27 22:43:54 - INFO - Chunk 1 | Started model training process
+2024-05-27 22:44:21 - INFO - Chunk 1 | voting_regressor RMSE: 5.374276723607082
+2024-05-27 22:44:21 - INFO - Chunk 1 | Plot the residuals and save them to PNG file.
+2024-05-27 22:44:22 - INFO - Chunk 1 | Model training has a good fit on never-seen-before data (RMSE: 5.374276723607082 < STD: 7.849034440939321).
+2024-05-27 22:44:22 - INFO - Chunk 1 | Patience = 0
+2024-05-27 22:44:22 - INFO - Chunk 1 | Completed model training process after: 00:00:27
+2024-05-27 22:44:22 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:44:22 - INFO - 
+
+2024-05-27 22:44:22 - INFO - Chunk 2 | Started model training process
+2024-05-27 22:44:41 - INFO - Chunk 2 | voting_regressor RMSE: 5.077536639446518
+2024-05-27 22:44:41 - INFO - Chunk 2 | Plot the residuals and save them to PNG file.
+2024-05-27 22:44:42 - INFO - Chunk 2 | Model training has a good fit on never-seen-before data (RMSE: 5.077536639446518 < STD: 7.385329651252633).
+2024-05-27 22:44:42 - INFO - Chunk 2 | Patience = 0
+2024-05-27 22:44:42 - INFO - Chunk 2 | Completed model training process after: 00:00:20
+2024-05-27 22:44:42 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:44:42 - INFO - 
+
+2024-05-27 22:44:42 - INFO - Chunk 3 | Started model training process
+2024-05-27 22:45:02 - INFO - Chunk 3 | voting_regressor RMSE: 4.945716162796714
+2024-05-27 22:45:02 - INFO - Chunk 3 | Plot the residuals and save them to PNG file.
+2024-05-27 22:45:02 - INFO - Chunk 3 | Model training has a good fit on never-seen-before data (RMSE: 4.945716162796714 < STD: 7.336844032763597).
+2024-05-27 22:45:02 - INFO - Chunk 3 | Patience = 0
+2024-05-27 22:45:02 - INFO - Chunk 3 | Completed model training process after: 00:00:20
+2024-05-27 22:45:02 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:45:02 - INFO - 
+
+2024-05-27 22:45:02 - INFO - Chunk 4 | Started model training process
+2024-05-27 22:45:23 - INFO - Chunk 4 | voting_regressor RMSE: 4.837223323587443
+2024-05-27 22:45:23 - INFO - Chunk 4 | Plot the residuals and save them to PNG file.
+2024-05-27 22:45:23 - INFO - Chunk 4 | Model training has a good fit on never-seen-before data (RMSE: 4.837223323587443 < STD: 7.051443496832415).
+2024-05-27 22:45:23 - INFO - Chunk 4 | Patience = 0
+2024-05-27 22:45:23 - INFO - Chunk 4 | Completed model training process after: 00:00:21
+2024-05-27 22:45:23 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:45:23 - INFO - 
+
+2024-05-27 22:45:23 - INFO - Chunk 5 | Started model training process
+2024-05-27 22:45:44 - INFO - Chunk 5 | voting_regressor RMSE: 5.0339894261861735
+2024-05-27 22:45:44 - INFO - Chunk 5 | Patience = 1
+2024-05-27 22:45:44 - INFO - Chunk 5 | Completed model training process after: 00:00:20
+2024-05-27 22:45:44 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:45:44 - INFO - 
+
+2024-05-27 22:45:44 - INFO - Chunk 6 | Started model training process
+2024-05-27 22:46:02 - INFO - Chunk 6 | voting_regressor RMSE: 4.966190278234003
+2024-05-27 22:46:02 - INFO - Chunk 6 | Patience = 2
+2024-05-27 22:46:02 - INFO - Chunk 6 | Completed model training process after: 00:00:18
+2024-05-27 22:46:02 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:46:02 - INFO - 
+
+2024-05-27 22:46:02 - INFO - Chunk 7 | Started model training process
+2024-05-27 22:46:17 - INFO - Chunk 7 | voting_regressor RMSE: 5.100848721267976
+2024-05-27 22:46:17 - INFO - Chunk 7 | Patience = 3
+2024-05-27 22:46:17 - INFO - Chunk 7 | Completed model training process after: 00:00:14
+2024-05-27 22:46:17 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:46:17 - INFO - 
+
+2024-05-27 22:46:17 - INFO - Chunk 8 | Started model training process
+2024-05-27 22:46:38 - INFO - Chunk 8 | voting_regressor RMSE: 5.050428288691237
+2024-05-27 22:46:38 - INFO - Chunk 8 | Patience = 4
+2024-05-27 22:46:38 - INFO - Chunk 8 | Completed model training process after: 00:00:20
+2024-05-27 22:46:38 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:46:38 - INFO - 
+
+2024-05-27 22:46:38 - INFO - Chunk 9 | Started model training process
+2024-05-27 22:46:38 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00011499999999999999, 'alpha': 0.11499999999999999, 'max_iter': 575}
+2024-05-27 22:46:38 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.11499999999999999, 'l1_ratio': 0.11499999999999999, 'max_iter': 575}
+2024-05-27 22:46:58 - INFO - Chunk 9 | voting_regressor RMSE: 5.447973223498428
+2024-05-27 22:46:58 - INFO - Chunk 9 | Patience = 0
+2024-05-27 22:46:58 - INFO - Chunk 9 | Completed model training process after: 00:00:20
+2024-05-27 22:46:58 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:46:58 - INFO - 
+
+2024-05-27 22:46:58 - INFO - Chunk 10 | Started model training process
+2024-05-27 22:47:18 - INFO - Chunk 10 | voting_regressor RMSE: 5.127777862079271
+2024-05-27 22:47:18 - INFO - Chunk 10 | Patience = 1
+2024-05-27 22:47:18 - INFO - Chunk 10 | Completed model training process after: 00:00:20
+2024-05-27 22:47:18 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:47:18 - INFO - 
+
+2024-05-27 22:47:18 - INFO - Chunk 11 | Started model training process
+2024-05-27 22:47:38 - INFO - Chunk 11 | voting_regressor RMSE: 5.4814577966553095
+2024-05-27 22:47:38 - INFO - Chunk 11 | Patience = 2
+2024-05-27 22:47:38 - INFO - Chunk 11 | Completed model training process after: 00:00:19
+2024-05-27 22:47:38 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:47:38 - INFO - 
+
+2024-05-27 22:47:38 - INFO - Chunk 12 | Started model training process
+2024-05-27 22:47:59 - INFO - Chunk 12 | voting_regressor RMSE: 4.790941946845112
+2024-05-27 22:47:59 - INFO - Chunk 12 | Plot the residuals and save them to PNG file.
+2024-05-27 22:47:59 - INFO - Chunk 12 | Model training has a good fit on never-seen-before data (RMSE: 4.790941946845112 < STD: 6.9307827487804445).
+2024-05-27 22:47:59 - INFO - Chunk 12 | Patience = 0
+2024-05-27 22:47:59 - INFO - Chunk 12 | Completed model training process after: 00:00:21
+2024-05-27 22:47:59 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:47:59 - INFO - 
+
+2024-05-27 22:47:59 - INFO - Chunk 13 | Started model training process
+2024-05-27 22:48:19 - INFO - Chunk 13 | voting_regressor RMSE: 5.209877715890002
+2024-05-27 22:48:19 - INFO - Chunk 13 | Patience = 1
+2024-05-27 22:48:19 - INFO - Chunk 13 | Completed model training process after: 00:00:19
+2024-05-27 22:48:19 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:48:19 - INFO - 
+
+2024-05-27 22:48:19 - INFO - Chunk 14 | Started model training process
+2024-05-27 22:48:35 - INFO - Chunk 14 | voting_regressor RMSE: 4.886521576298601
+2024-05-27 22:48:35 - INFO - Chunk 14 | Patience = 2
+2024-05-27 22:48:35 - INFO - Chunk 14 | Completed model training process after: 00:00:16
+2024-05-27 22:48:35 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:48:35 - INFO - 
+
+2024-05-27 22:48:35 - INFO - Chunk 15 | Started model training process
+2024-05-27 22:48:51 - INFO - Chunk 15 | voting_regressor RMSE: 4.917309501421737
+2024-05-27 22:48:51 - INFO - Chunk 15 | Patience = 3
+2024-05-27 22:48:51 - INFO - Chunk 15 | Completed model training process after: 00:00:15
+2024-05-27 22:48:51 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:48:51 - INFO - 
+
+2024-05-27 22:48:51 - INFO - Chunk 16 | Started model training process
+2024-05-27 22:49:11 - INFO - Chunk 16 | voting_regressor RMSE: 5.387591206032415
+2024-05-27 22:49:11 - INFO - Chunk 16 | Patience = 4
+2024-05-27 22:49:11 - INFO - Chunk 16 | Completed model training process after: 00:00:20
+2024-05-27 22:49:11 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:49:11 - INFO - 
+
+2024-05-27 22:49:11 - INFO - Chunk 17 | Started model training process
+2024-05-27 22:49:11 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00013225, 'alpha': 0.13224999999999998, 'max_iter': 661}
+2024-05-27 22:49:11 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.13224999999999998, 'l1_ratio': 0.13224999999999998, 'max_iter': 661}
+2024-05-27 22:49:26 - INFO - Chunk 17 | voting_regressor RMSE: 4.802972923861625
+2024-05-27 22:49:26 - INFO - Chunk 17 | Patience = 0
+2024-05-27 22:49:26 - INFO - Chunk 17 | Completed model training process after: 00:00:14
+2024-05-27 22:49:26 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:49:26 - INFO - 
+
+2024-05-27 22:49:26 - INFO - Chunk 18 | Started model training process
+2024-05-27 22:49:47 - INFO - Chunk 18 | voting_regressor RMSE: 5.077697062766898
+2024-05-27 22:49:47 - INFO - Chunk 18 | Patience = 1
+2024-05-27 22:49:47 - INFO - Chunk 18 | Completed model training process after: 00:00:20
+2024-05-27 22:49:47 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:49:47 - INFO - 
+
+2024-05-27 22:49:47 - INFO - Chunk 19 | Started model training process
+2024-05-27 22:50:06 - INFO - Chunk 19 | voting_regressor RMSE: 4.874913185648662
+2024-05-27 22:50:06 - INFO - Chunk 19 | Patience = 2
+2024-05-27 22:50:06 - INFO - Chunk 19 | Completed model training process after: 00:00:19
+2024-05-27 22:50:06 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:50:06 - INFO - 
+
+2024-05-27 22:50:06 - INFO - Chunk 20 | Started model training process
+2024-05-27 22:50:25 - INFO - Chunk 20 | voting_regressor RMSE: 4.61350372055723
+2024-05-27 22:50:25 - INFO - Chunk 20 | Plot the residuals and save them to PNG file.
+2024-05-27 22:50:25 - INFO - Chunk 20 | Model training has a good fit on never-seen-before data (RMSE: 4.61350372055723 < STD: 7.110742830959807).
+2024-05-27 22:50:25 - INFO - Chunk 20 | Patience = 0
+2024-05-27 22:50:25 - INFO - Chunk 20 | Completed model training process after: 00:00:19
+2024-05-27 22:50:25 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:50:25 - INFO - 
+
+2024-05-27 22:50:25 - INFO - Chunk 21 | Started model training process
+2024-05-27 22:50:45 - INFO - Chunk 21 | voting_regressor RMSE: 4.791792681895051
+2024-05-27 22:50:45 - INFO - Chunk 21 | Patience = 1
+2024-05-27 22:50:45 - INFO - Chunk 21 | Completed model training process after: 00:00:20
+2024-05-27 22:50:45 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:50:45 - INFO - 
+
+2024-05-27 22:50:45 - INFO - Chunk 22 | Started model training process
+2024-05-27 22:51:05 - INFO - Chunk 22 | voting_regressor RMSE: 4.134536001545665
+2024-05-27 22:51:05 - INFO - Chunk 22 | Plot the residuals and save them to PNG file.
+2024-05-27 22:51:06 - INFO - Chunk 22 | Model training has a good fit on never-seen-before data (RMSE: 4.134536001545665 < STD: 6.280840269564995).
+2024-05-27 22:51:06 - INFO - Chunk 22 | Patience = 0
+2024-05-27 22:51:06 - INFO - Chunk 22 | Completed model training process after: 00:00:20
+2024-05-27 22:51:06 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:51:06 - INFO - 
+
+2024-05-27 22:51:06 - INFO - Chunk 23 | Started model training process
+2024-05-27 22:51:28 - INFO - Chunk 23 | voting_regressor RMSE: 4.942989920718327
+2024-05-27 22:51:28 - INFO - Chunk 23 | Patience = 1
+2024-05-27 22:51:28 - INFO - Chunk 23 | Completed model training process after: 00:00:21
+2024-05-27 22:51:28 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:51:28 - INFO - 
+
+2024-05-27 22:51:28 - INFO - Chunk 24 | Started model training process
+2024-05-27 22:51:47 - INFO - Chunk 24 | voting_regressor RMSE: 4.5229292568121275
+2024-05-27 22:51:47 - INFO - Chunk 24 | Patience = 2
+2024-05-27 22:51:47 - INFO - Chunk 24 | Completed model training process after: 00:00:18
+2024-05-27 22:51:47 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:51:47 - INFO - 
+
+2024-05-27 22:51:47 - INFO - Chunk 25 | Started model training process
+2024-05-27 22:52:05 - INFO - Chunk 25 | voting_regressor RMSE: 4.449736737029305
+2024-05-27 22:52:05 - INFO - Chunk 25 | Patience = 3
+2024-05-27 22:52:05 - INFO - Chunk 25 | Completed model training process after: 00:00:18
+2024-05-27 22:52:05 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:52:05 - INFO - 
+
+2024-05-27 22:52:05 - INFO - Chunk 26 | Started model training process
+2024-05-27 22:52:19 - INFO - Chunk 26 | voting_regressor RMSE: 4.1410611102339026
+2024-05-27 22:52:19 - INFO - Chunk 26 | Patience = 4
+2024-05-27 22:52:19 - INFO - Chunk 26 | Completed model training process after: 00:00:14
+2024-05-27 22:52:19 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:52:19 - INFO - 
+
+2024-05-27 22:52:19 - INFO - Chunk 27 | Started model training process
+2024-05-27 22:52:19 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00015208749999999998, 'alpha': 0.15208749999999996, 'max_iter': 760}
+2024-05-27 22:52:19 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.15208749999999996, 'l1_ratio': 0.15208749999999996, 'max_iter': 760}
+2024-05-27 22:52:35 - INFO - Chunk 27 | voting_regressor RMSE: 3.7794385443116565
+2024-05-27 22:52:35 - INFO - Chunk 27 | Plot the residuals and save them to PNG file.
+2024-05-27 22:52:35 - INFO - Chunk 27 | Model training has a good fit on never-seen-before data (RMSE: 3.7794385443116565 < STD: 5.727447559520185).
+2024-05-27 22:52:35 - INFO - Chunk 27 | Patience = 0
+2024-05-27 22:52:35 - INFO - Chunk 27 | Completed model training process after: 00:00:16
+2024-05-27 22:52:35 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:52:35 - INFO - 
+
+2024-05-27 22:52:35 - INFO - Chunk 28 | Started model training process
+2024-05-27 22:52:51 - INFO - Chunk 28 | voting_regressor RMSE: 4.277144899327821
+2024-05-27 22:52:51 - INFO - Chunk 28 | Patience = 1
+2024-05-27 22:52:51 - INFO - Chunk 28 | Completed model training process after: 00:00:15
+2024-05-27 22:52:51 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:52:51 - INFO - 
+
+2024-05-27 22:52:51 - INFO - Chunk 29 | Started model training process
+2024-05-27 22:53:07 - INFO - Chunk 29 | voting_regressor RMSE: 4.2706398700807195
+2024-05-27 22:53:07 - INFO - Chunk 29 | Patience = 2
+2024-05-27 22:53:07 - INFO - Chunk 29 | Completed model training process after: 00:00:16
+2024-05-27 22:53:07 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:53:07 - INFO - 
+
+2024-05-27 22:53:07 - INFO - Chunk 30 | Started model training process
+2024-05-27 22:53:24 - INFO - Chunk 30 | voting_regressor RMSE: 4.536800925700672
+2024-05-27 22:53:24 - INFO - Chunk 30 | Patience = 3
+2024-05-27 22:53:24 - INFO - Chunk 30 | Completed model training process after: 00:00:17
+2024-05-27 22:53:24 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:53:24 - INFO - 
+
+2024-05-27 22:53:24 - INFO - Chunk 31 | Started model training process
+2024-05-27 22:53:41 - INFO - Chunk 31 | voting_regressor RMSE: 4.5206636720642654
+2024-05-27 22:53:41 - INFO - Chunk 31 | Patience = 4
+2024-05-27 22:53:41 - INFO - Chunk 31 | Completed model training process after: 00:00:16
+2024-05-27 22:53:41 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:53:41 - INFO - 
+
+2024-05-27 22:53:41 - INFO - Chunk 32 | Started model training process
+2024-05-27 22:53:41 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00017490062499999996, 'alpha': 0.17490062499999995, 'max_iter': 873}
+2024-05-27 22:53:41 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.17490062499999995, 'l1_ratio': 0.17490062499999995, 'max_iter': 873}
+2024-05-27 22:53:56 - INFO - Chunk 32 | voting_regressor RMSE: 4.28735991658589
+2024-05-27 22:53:56 - INFO - Chunk 32 | Patience = 0
+2024-05-27 22:53:56 - INFO - Chunk 32 | Completed model training process after: 00:00:14
+2024-05-27 22:53:56 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:53:56 - INFO - 
+
+2024-05-27 22:53:56 - INFO - Chunk 33 | Started model training process
+2024-05-27 22:54:11 - INFO - Chunk 33 | voting_regressor RMSE: 4.237151043669956
+2024-05-27 22:54:11 - INFO - Chunk 33 | Patience = 1
+2024-05-27 22:54:11 - INFO - Chunk 33 | Completed model training process after: 00:00:15
+2024-05-27 22:54:11 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:54:11 - INFO - 
+
+2024-05-27 22:54:11 - INFO - Chunk 34 | Started model training process
+2024-05-27 22:54:27 - INFO - Chunk 34 | voting_regressor RMSE: 4.2472123986828745
+2024-05-27 22:54:27 - INFO - Chunk 34 | Patience = 2
+2024-05-27 22:54:27 - INFO - Chunk 34 | Completed model training process after: 00:00:16
+2024-05-27 22:54:27 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:54:27 - INFO - 
+
+2024-05-27 22:54:27 - INFO - Chunk 35 | Started model training process
+2024-05-27 22:54:43 - INFO - Chunk 35 | voting_regressor RMSE: 4.307596847831823
+2024-05-27 22:54:43 - INFO - Chunk 35 | Patience = 3
+2024-05-27 22:54:43 - INFO - Chunk 35 | Completed model training process after: 00:00:15
+2024-05-27 22:54:43 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:54:43 - INFO - 
+
+2024-05-27 22:54:43 - INFO - Chunk 36 | Started model training process
+2024-05-27 22:54:57 - INFO - Chunk 36 | voting_regressor RMSE: 4.212440477037515
+2024-05-27 22:54:57 - INFO - Chunk 36 | Patience = 4
+2024-05-27 22:54:57 - INFO - Chunk 36 | Completed model training process after: 00:00:14
+2024-05-27 22:54:57 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:54:57 - INFO - 
+
+2024-05-27 22:54:57 - INFO - Chunk 37 | Started model training process
+2024-05-27 22:54:58 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00020113571874999994, 'alpha': 0.20113571874999991, 'max_iter': 1003}
+2024-05-27 22:54:58 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.20113571874999991, 'l1_ratio': 0.20113571874999991, 'max_iter': 1003}
+2024-05-27 22:55:11 - INFO - Chunk 37 | voting_regressor RMSE: 4.171069788289521
+2024-05-27 22:55:11 - INFO - Chunk 37 | Patience = 0
+2024-05-27 22:55:11 - INFO - Chunk 37 | Completed model training process after: 00:00:13
+2024-05-27 22:55:11 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:55:11 - INFO - 
+
+2024-05-27 22:55:11 - INFO - Chunk 38 | Started model training process
+2024-05-27 22:55:28 - INFO - Chunk 38 | voting_regressor RMSE: 4.445855019849673
+2024-05-27 22:55:28 - INFO - Chunk 38 | Patience = 1
+2024-05-27 22:55:28 - INFO - Chunk 38 | Completed model training process after: 00:00:16
+2024-05-27 22:55:28 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:55:28 - INFO - 
+
+2024-05-27 22:55:28 - INFO - Chunk 39 | Started model training process
+2024-05-27 22:55:43 - INFO - Chunk 39 | voting_regressor RMSE: 4.180569311076271
+2024-05-27 22:55:43 - INFO - Chunk 39 | Patience = 2
+2024-05-27 22:55:43 - INFO - Chunk 39 | Completed model training process after: 00:00:15
+2024-05-27 22:55:43 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:55:43 - INFO - 
+
+2024-05-27 22:55:43 - INFO - Chunk 40 | Started model training process
+2024-05-27 22:55:57 - INFO - Chunk 40 | voting_regressor RMSE: 4.211287701014557
+2024-05-27 22:55:57 - INFO - Chunk 40 | Patience = 3
+2024-05-27 22:55:57 - INFO - Chunk 40 | Completed model training process after: 00:00:13
+2024-05-27 22:55:57 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:55:57 - INFO - 
+
+2024-05-27 22:55:57 - INFO - Chunk 41 | Started model training process
+2024-05-27 22:56:14 - INFO - Chunk 41 | voting_regressor RMSE: 4.683674055564494
+2024-05-27 22:56:14 - INFO - Chunk 41 | Patience = 4
+2024-05-27 22:56:14 - INFO - Chunk 41 | Completed model training process after: 00:00:16
+2024-05-27 22:56:14 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:56:14 - INFO - 
+
+2024-05-27 22:56:14 - INFO - Chunk 42 | Started model training process
+2024-05-27 22:56:14 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.0002313060765624999, 'alpha': 0.23130607656249988, 'max_iter': 1153}
+2024-05-27 22:56:14 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.23130607656249988, 'l1_ratio': 0.23130607656249988, 'max_iter': 1153}
+2024-05-27 22:56:26 - INFO - Chunk 42 | voting_regressor RMSE: 4.203960582469289
+2024-05-27 22:56:26 - INFO - Chunk 42 | Patience = 0
+2024-05-27 22:56:26 - INFO - Chunk 42 | Completed model training process after: 00:00:12
+2024-05-27 22:56:26 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:56:26 - INFO - 
+
+2024-05-27 22:56:26 - INFO - Chunk 43 | Started model training process
+2024-05-27 22:56:40 - INFO - Chunk 43 | voting_regressor RMSE: 3.974667311875584
+2024-05-27 22:56:40 - INFO - Chunk 43 | Patience = 1
+2024-05-27 22:56:40 - INFO - Chunk 43 | Completed model training process after: 00:00:13
+2024-05-27 22:56:40 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:56:40 - INFO - 
+
+2024-05-27 22:56:40 - INFO - Chunk 44 | Started model training process
+2024-05-27 22:56:54 - INFO - Chunk 44 | voting_regressor RMSE: 3.478213024690174
+2024-05-27 22:56:54 - INFO - Chunk 44 | Plot the residuals and save them to PNG file.
+2024-05-27 22:56:55 - INFO - Chunk 44 | Model training has a good fit on never-seen-before data (RMSE: 3.478213024690174 < STD: 5.510723981895097).
+2024-05-27 22:56:55 - INFO - Chunk 44 | Patience = 0
+2024-05-27 22:56:55 - INFO - Chunk 44 | Completed model training process after: 00:00:15
+2024-05-27 22:56:55 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:56:55 - INFO - 
+
+2024-05-27 22:56:55 - INFO - Chunk 45 | Started model training process
+2024-05-27 22:57:08 - INFO - Chunk 45 | voting_regressor RMSE: 3.636860044966984
+2024-05-27 22:57:08 - INFO - Chunk 45 | Patience = 1
+2024-05-27 22:57:08 - INFO - Chunk 45 | Completed model training process after: 00:00:13
+2024-05-27 22:57:08 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:57:08 - INFO - 
+
+2024-05-27 22:57:08 - INFO - Chunk 46 | Started model training process
+2024-05-27 22:57:22 - INFO - Chunk 46 | voting_regressor RMSE: 3.826870805666771
+2024-05-27 22:57:22 - INFO - Chunk 46 | Patience = 2
+2024-05-27 22:57:22 - INFO - Chunk 46 | Completed model training process after: 00:00:13
+2024-05-27 22:57:22 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:57:22 - INFO - 
+
+2024-05-27 22:57:22 - INFO - Chunk 47 | Started model training process
+2024-05-27 22:57:36 - INFO - Chunk 47 | voting_regressor RMSE: 3.5705966437195515
+2024-05-27 22:57:36 - INFO - Chunk 47 | Patience = 3
+2024-05-27 22:57:36 - INFO - Chunk 47 | Completed model training process after: 00:00:13
+2024-05-27 22:57:36 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:57:36 - INFO - 
+
+2024-05-27 22:57:36 - INFO - Chunk 48 | Started model training process
+2024-05-27 22:57:51 - INFO - Chunk 48 | voting_regressor RMSE: 4.359974367070863
+2024-05-27 22:57:51 - INFO - Chunk 48 | Patience = 4
+2024-05-27 22:57:51 - INFO - Chunk 48 | Completed model training process after: 00:00:15
+2024-05-27 22:57:51 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:57:51 - INFO - 
+
+2024-05-27 22:57:51 - INFO - Chunk 49 | Started model training process
+2024-05-27 22:57:51 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00026600198804687487, 'alpha': 0.26600198804687486, 'max_iter': 1325}
+2024-05-27 22:57:51 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.26600198804687486, 'l1_ratio': 0.26600198804687486, 'max_iter': 1325}
+2024-05-27 22:58:03 - INFO - Chunk 49 | voting_regressor RMSE: 3.7232507132212733
+2024-05-27 22:58:03 - INFO - Chunk 49 | Patience = 0
+2024-05-27 22:58:03 - INFO - Chunk 49 | Completed model training process after: 00:00:12
+2024-05-27 22:58:03 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:58:03 - INFO - 
+
+2024-05-27 22:58:03 - INFO - Chunk 50 | Started model training process
+2024-05-27 22:58:20 - INFO - Chunk 50 | voting_regressor RMSE: 4.913203917847679
+2024-05-27 22:58:20 - INFO - Chunk 50 | Patience = 1
+2024-05-27 22:58:20 - INFO - Chunk 50 | Completed model training process after: 00:00:16
+2024-05-27 22:58:20 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:58:20 - INFO - 
+
+2024-05-27 22:58:20 - INFO - Chunk 51 | Started model training process
+2024-05-27 22:58:35 - INFO - Chunk 51 | voting_regressor RMSE: 5.014418013378243
+2024-05-27 22:58:35 - INFO - Chunk 51 | Patience = 2
+2024-05-27 22:58:35 - INFO - Chunk 51 | Completed model training process after: 00:00:15
+2024-05-27 22:58:35 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:58:35 - INFO - 
+
+2024-05-27 22:58:35 - INFO - Chunk 52 | Started model training process
+2024-05-27 22:58:53 - INFO - Chunk 52 | voting_regressor RMSE: 5.093343658432996
+2024-05-27 22:58:53 - INFO - Chunk 52 | Patience = 3
+2024-05-27 22:58:53 - INFO - Chunk 52 | Completed model training process after: 00:00:17
+2024-05-27 22:58:53 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:58:53 - INFO - 
+
+2024-05-27 22:58:53 - INFO - Chunk 53 | Started model training process
+2024-05-27 22:59:07 - INFO - Chunk 53 | voting_regressor RMSE: 5.174153845362555
+2024-05-27 22:59:07 - INFO - Chunk 53 | Patience = 4
+2024-05-27 22:59:07 - INFO - Chunk 53 | Completed model training process after: 00:00:13
+2024-05-27 22:59:07 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:59:07 - INFO - 
+
+2024-05-27 22:59:07 - INFO - Chunk 54 | Started model training process
+2024-05-27 22:59:07 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.0003059022862539061, 'alpha': 0.3059022862539061, 'max_iter': 1523}
+2024-05-27 22:59:07 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.3059022862539061, 'l1_ratio': 0.3059022862539061, 'max_iter': 1523}
+2024-05-27 22:59:28 - INFO - Chunk 54 | voting_regressor RMSE: 5.780612490696712
+2024-05-27 22:59:28 - INFO - Chunk 54 | Patience = 0
+2024-05-27 22:59:28 - INFO - Chunk 54 | Completed model training process after: 00:00:21
+2024-05-27 22:59:28 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:59:28 - INFO - 
+
+2024-05-27 22:59:28 - INFO - Chunk 55 | Started model training process
+2024-05-27 22:59:45 - INFO - Chunk 55 | voting_regressor RMSE: 5.082017481942775
+2024-05-27 22:59:45 - INFO - Chunk 55 | Patience = 1
+2024-05-27 22:59:45 - INFO - Chunk 55 | Completed model training process after: 00:00:16
+2024-05-27 22:59:45 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 22:59:45 - INFO - 
+
+2024-05-27 22:59:45 - INFO - Chunk 56 | Started model training process
+2024-05-27 23:00:00 - INFO - Chunk 56 | voting_regressor RMSE: 4.506491920162974
+2024-05-27 23:00:00 - INFO - Chunk 56 | Patience = 2
+2024-05-27 23:00:00 - INFO - Chunk 56 | Completed model training process after: 00:00:14
+2024-05-27 23:00:00 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 23:00:00 - INFO - 
+
+2024-05-27 23:00:00 - INFO - Chunk 57 | Started model training process
+2024-05-27 23:00:13 - INFO - Chunk 57 | voting_regressor RMSE: 3.9474652755496544
+2024-05-27 23:00:13 - INFO - Chunk 57 | Patience = 3
+2024-05-27 23:00:13 - INFO - Chunk 57 | Completed model training process after: 00:00:13
+2024-05-27 23:00:13 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 23:00:13 - INFO - 
+
+2024-05-27 23:00:13 - INFO - Chunk 58 | Started model training process
+2024-05-27 23:00:28 - INFO - Chunk 58 | voting_regressor RMSE: 4.4446970336428935
+2024-05-27 23:00:28 - INFO - Chunk 58 | Patience = 4
+2024-05-27 23:00:28 - INFO - Chunk 58 | Completed model training process after: 00:00:14
+2024-05-27 23:00:28 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 23:00:28 - INFO - 
+
+2024-05-27 23:00:28 - INFO - Chunk 59 | Started model training process
+2024-05-27 23:00:28 - INFO - No improvement for 5 iterations, adjusting hyperparameters for Ridge Regressor: {'tol': 0.00035178762919199196, 'alpha': 0.35178762919199197, 'max_iter': 1751}
+2024-05-27 23:00:28 - INFO - No improvement for 5 iterations, adjusting hyperparameters for ElasticNet Regressor: {'alpha': 0.35178762919199197, 'l1_ratio': 0.35178762919199197, 'max_iter': 1751}
+2024-05-27 23:00:39 - INFO - Chunk 59 | voting_regressor RMSE: 4.048403942415787
+2024-05-27 23:00:39 - INFO - Chunk 59 | Patience = 0
+2024-05-27 23:00:39 - INFO - Chunk 59 | Completed model training process after: 00:00:11
+2024-05-27 23:00:39 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 23:00:39 - INFO - 
+
+2024-05-27 23:00:39 - INFO - Chunk 60 | Started model training process
+2024-05-27 23:00:48 - INFO - Chunk 60 | voting_regressor RMSE: 4.20115439974951
+2024-05-27 23:00:48 - INFO - Chunk 60 | Patience = 1
+2024-05-27 23:00:48 - INFO - Chunk 60 | Completed model training process after: 00:00:08
+2024-05-27 23:00:48 - INFO - ----------------------------------------------------------------------------------------------------
+2024-05-27 23:00:48 - INFO - SUCCESS: duration recommendation model completed.

@@ -11,7 +11,7 @@ from sklearn.preprocessing import MinMaxScaler, StandardScaler
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression, Ridge, ElasticNet
 from sklearn.ensemble import RandomForestRegressor, VotingRegressor
-from sklearn.metrics import root_mean_squared_error
+from sklearn.metrics import root_mean_squared_error, r2_score, mean_absolute_error
 
 def init_model_artifacts(path:str, logger_object:logging.Logger):
     if not os.path.exists(path):
@@ -23,8 +23,8 @@ def init_model_artifacts(path:str, logger_object:logging.Logger):
 
 class ML_MODELING():
 
-    def __init__(self, ml_model:str, model_artifacts_path:str, model_metadata_path:str, model_residuals_path:str, kfold_splits:int, RANDOM_SEED:int):
-        self.columns_to_normalize:list = [0, 5, 6, 9] #Integres =numppy index matching to dataframe columns
+    def __init__(self, model_type:str, ml_model:str, model_artifacts_path:str, model_metadata_path:str, model_residuals_path:str, kfold_splits:int, RANDOM_SEED:int):
+        self.columns_to_normalize:list = [0, 5, 6, 8] if model_type=="trip_duration" else [0, 7, 8, 9, 10, 15]  #Integres =numppy index matching to dataframe columns
         self.valid_regressor_names:list = ["linear_regressor", "randomforest_regressor", "voting_regressor"]
         self.patience = 5
         self.hyper_parameters_adjustment = 1.15 # positive percentage increase. Thus 1.05 means 5%, 1.10 means 10% and so on so forth.
@@ -74,12 +74,12 @@ class ML_MODELING():
             self.params_rr:dict = {
                 "tol": 0.0001,
                 "alpha": 0.1,
-                "max_iter": 500,
+                "max_iter": 2000,
             }
             self.params_elr:dict = {
                 "alpha": 0.1,
                 "l1_ratio": 0.1,
-                "max_iter": 500,
+                "max_iter": 2000,
             }
             self.pipeline:Dict[str, Pipeline] = {
                 ml_model: Pipeline(steps=[
@@ -98,6 +98,8 @@ class ML_MODELING():
 
         self.kf = KFold(n_splits=kfold_splits, shuffle=True, random_state=RANDOM_SEED)
         self.evaluation_metric = root_mean_squared_error
+        self.r_squared = r2_score
+        self.mae = mean_absolute_error
         self.model_artifact:str = os.path.join(model_artifacts_path, f"{ml_model}_best_model.joblib")
         self.model_scores:str = os.path.join(model_metadata_path, f"{ml_model}_scores.json")
         self.model_residuals:str = os.path.join(model_residuals_path, f"{ml_model}_residuals_plot.png")

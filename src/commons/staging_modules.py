@@ -478,9 +478,9 @@ def enrich_partition_samples(args:Tuple[str, list, str, str, logging.Logger]):
 # CATEGORICAL DATA ENCODING TO NUMERIC REPRESENTATIONS
 # =====================================================
 
-def one_hot_encode_column(df:pl.LazyFrame, col:str) -> pl.LazyFrame:
-    df = df.collect().to_dummies(col, separator='_', drop_first=False).lazy()
-    return df
+def one_hot_encode_column(df:pl.LazyFrame, col:list) -> pl.LazyFrame:
+    df_dummies = df.collect().to_dummies(col, separator='_', drop_first=False)
+    return df_dummies.lazy()
 
 def is_holiday(df:pl.LazyFrame, col:str, us_holidays:list) -> pl.LazyFrame:
     target_col = 'tpep_pickup_datetime' if col == 'pickup' else 'tpep_dropoff_datetime'

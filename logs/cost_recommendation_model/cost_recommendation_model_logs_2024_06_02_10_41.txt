@@ -1,0 +1,9 @@
+2024-06-02 10:41:46 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/models already exists. Program will continue.
+2024-06-02 10:41:46 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/residuals already exists. Program will continue.
+2024-06-02 10:41:46 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/metadata already exists. Program will continue.
+2024-06-02 10:41:59 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/models already exists. Program will continue.
+2024-06-02 10:41:59 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/residuals already exists. Program will continue.
+2024-06-02 10:41:59 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240602/short_trip/metadata already exists. Program will continue.
+2024-06-02 10:41:59 - INFO - 
+
+2024-06-02 10:41:59 - INFO - Chunk 1 | Started model training process
