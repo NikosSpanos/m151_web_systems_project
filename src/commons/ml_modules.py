@@ -7,7 +7,7 @@ import seaborn as sns
 from typing import Dict
 from sklearn.model_selection import KFold
 from sklearn.compose import ColumnTransformer
-from sklearn.preprocessing import MinMaxScaler, StandardScaler
+from sklearn.preprocessing import MinMaxScaler, StandardScaler, OneHotEncoder
 from sklearn.pipeline import Pipeline
 from sklearn.linear_model import LinearRegression, Ridge, ElasticNet
 from sklearn.ensemble import RandomForestRegressor, VotingRegressor
@@ -24,13 +24,15 @@ def init_model_artifacts(path:str, logger_object:logging.Logger):
 class ML_MODELING():
 
     def __init__(self, model_type:str, ml_model:str, model_artifacts_path:str, model_metadata_path:str, model_residuals_path:str, kfold_splits:int, RANDOM_SEED:int):
-        self.columns_to_normalize:list = [0, 5, 6, 8] if model_type=="trip_duration" else [0, 7, 8, 9, 10, 15]  #Integres =numppy index matching to dataframe columns
+        self.columns_to_normalize:list = [0, 4, 5, 8] if model_type=="trip_duration" else [0, 7, 8, 9, 10, 15]  #Integres = numppy index matching to dataframe columns
+        self.columns_to_onehotencode:list = [1, 2, 3] if model_type=="trip_duration" else [1, 2, 3, 4, 5, 6]
         self.valid_regressor_names:list = ["linear_regressor", "randomforest_regressor", "voting_regressor"]
         self.patience = 5
         self.hyper_parameters_adjustment = 1.15 # positive percentage increase. Thus 1.05 means 5%, 1.10 means 10% and so on so forth.
         self.preprocessor_lr:ColumnTransformer = ColumnTransformer(
             transformers=[
-                ('standardized', StandardScaler(), self.columns_to_normalize)
+                ('standardized', StandardScaler(), self.columns_to_normalize),
+                ('one-hot-encoded', OneHotEncoder(drop='first', dtype=np.int64, handle_unknown='ignore'), self.columns_to_onehotencode)
             ],
             remainder='passthrough'
         )

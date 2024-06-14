@@ -42,16 +42,12 @@ def main(logger_object:logging.Logger):
     # INITIALIZE STAGING PROCESSED PATH FOR STORING THE ENRICHED DATA
     #===================================================================
     stg_processed_path = os.path.join(application_path, stg_processed_loc, execution_timestamp, args.trip_type)
-    # print(stg_processed_path)
     init_stg_path(stg_processed_path, logger_object)
     #========================================================
     # COLLECT THE LATEST PARTITIONED FOLDER
     #========================================================
     stg_partitioned_path = os.path.join(application_path, stg_partitioned_loc)
     latest_partitioned_folder = os.path.join(get_latest_partitioned_folder(stg_partitioned_path, logger_object), args.trip_type)
-    
-    # print(latest_partitioned_folder)
-    # print(os.path.join(latest_partitioned_folder, args.trip_type))
 
     #========================================================
     # LIST ALL PARTITION DIRECTORIES
@@ -61,7 +57,6 @@ def main(logger_object:logging.Logger):
         for d in os.listdir(latest_partitioned_folder)
         if os.path.isdir(os.path.join(latest_partitioned_folder, d))
     ]
-    # partitions = ["/home/nspanos/m151_web_systems_project/data/staging/processed/taxi_trips/20240526/short_trip/partition_dt=202201"]
     #=================================================================
     # MAP NEW NAMES FOR THE GENERATED COLUMNS FROM GEOSPATIAL SAMPLES
     #=================================================================
@@ -83,35 +78,11 @@ def main(logger_object:logging.Logger):
     #=================================================================
     # EXECUTE DATA ENRICHMENT WITH GEOSPATIAL DATA USING THREADING
     #=================================================================
-
-    #Without Threading
-    # for partition in partitions:
-    #     items = Path(partition).rglob("*.parquet")
-    #     for parquet_file in items:
-    #         partitions = dict(part.split('=') for part in parquet_file.parts if '=' in part)
-    #         for key, value in partitions.items():
-    #             print(key, value)
-    #             df_partition= pl.read_parquet(parquet_file).with_columns(pl.lit(value, dtype=pl.Utf8).alias(key))
-    #         print(df_partition.columns)
-    #         print(df_partition.head())
-    #     break
-    #     data = enrich_partition_samples(partition, mapping_names, df_geo)
-    #     print(data.columns)
-    # exit()
-    
     try:
-        # num_threads = 1
-        # with ThreadPoolExecutor(max_workers=num_threads) as executor:
-        #     future_to_partition = [executor.submit(enrich_partition_samples, (partition, mapping_names, geo_path, stg_processed_path, logger_object)) for partition in partitions]
         num_processes:int = 3
-        # task_args:list = [(partition, mapping_names, geo_path, stg_processed_path, logger_object) for partition in partitions]
         task_args:list = [(partition, mapping_names, geo_path, stg_processed_path, logger_object) for partition in partitions]
         start_time:float = time.perf_counter()
-        # Option 1: old-fashioned for loop
-        # for tuple_arg in task_args:
-        #     enrich_partition_samples(tuple_arg)
-        
-        # Optiona 2: Parallel processing
+
         with Pool(num_processes) as pool:
             pool.map(enrich_partition_samples, task_args)
         hours, minutes, seconds = compute_execution_time(start_time)

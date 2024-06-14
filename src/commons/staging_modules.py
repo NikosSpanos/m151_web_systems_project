@@ -317,7 +317,7 @@ def flatten_list_of_lists(data) -> list:
     return [subitem2 for subitem1 in data for subitem2 in subitem1]
 
 def transform_polygons_to_multipolygons(flat_list:list) -> list:
-    return [ MultiPolygon( [Polygon(coord) for coord in polygon]).wkt for polygon in  flat_list]
+    return [ MultiPolygon( [Polygon(coord) for coord in polygon]).wkt for polygon in flat_list]
 
 def compute_geo_areas(multipolygons:MultiPolygon) -> float:
     return wkt.loads(multipolygons).area

@@ -1,0 +1,31 @@
+2024-06-13 22:26:09 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/models already exists. Program will continue.
+2024-06-13 22:26:09 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/residuals already exists. Program will continue.
+2024-06-13 22:26:09 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/metadata already exists. Program will continue.
+2024-06-13 22:26:10 - INFO - 
+
+2024-06-13 22:26:10 - INFO - Chunk 1 | Started model training process
+2024-06-13 22:26:21 - INFO - Chunk 1 | voting_regressor RMSE: 15.56426725046264
+2024-06-13 22:26:21 - INFO - Chunk 1 | Plot the residuals and save them to PNG file.
+2024-06-13 22:26:21 - INFO - Chunk 1 | Model training has a good fit on never-seen-before data (RMSE: 15.56426725046264 < STD: 17.02307544789845).
+2024-06-13 22:26:21 - INFO - Chunk 1 | Patience = 0
+2024-06-13 22:26:21 - INFO - Chunk 1 | Completed model training process after: 00:00:11
+2024-06-13 22:26:21 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-13 22:26:21 - INFO - SUCCESS: Cost recommendation model completed.
+2024-06-13 22:26:31 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/models already exists. Program will continue.
+2024-06-13 22:26:31 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/residuals already exists. Program will continue.
+2024-06-13 22:26:31 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/metadata already exists. Program will continue.
+2024-06-13 22:26:31 - ERROR - Invalid arguments given. Check script input arguments.
+2024-06-13 22:26:31 - ERROR - FAIL: Cost recommendation model failed.
+2024-06-13 22:26:37 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/models already exists. Program will continue.
+2024-06-13 22:26:37 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/residuals already exists. Program will continue.
+2024-06-13 22:26:37 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_cost/20240613/long_trip/metadata already exists. Program will continue.
+2024-06-13 22:26:37 - INFO - 
+
+2024-06-13 22:26:37 - INFO - Chunk 1 | Started model training process
+2024-06-13 22:26:52 - INFO - Chunk 1 | linear_regressor RMSE: 15.54688850484726
+2024-06-13 22:26:52 - INFO - Chunk 1 | Plot the residuals and save them to PNG file.
+2024-06-13 22:26:52 - INFO - Chunk 1 | Model training has a good fit on never-seen-before data (RMSE: 15.54688850484726 < STD: 17.02307544789845).
+2024-06-13 22:26:52 - INFO - Chunk 1 | Patience = 0
+2024-06-13 22:26:52 - INFO - Chunk 1 | Completed model training process after: 00:00:14
+2024-06-13 22:26:52 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-13 22:26:52 - INFO - SUCCESS: Cost recommendation model completed.

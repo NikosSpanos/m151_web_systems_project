@@ -29,8 +29,7 @@ from commons.staging_modules import init_stg_path, \
     feature_engineer_trip_hour, \
     feature_engineer_trip_month, \
     is_holiday, \
-    is_weekend, \
-    one_hot_encode_column
+    is_weekend
 
 def main(logger_object:logging.Logger):
     
@@ -230,13 +229,11 @@ def main(logger_object:logging.Logger):
                 df = is_holiday(df, 'pickup', hol_dts)
                 df = is_holiday(df, 'dropoff', hol_dts)
 
-
                 #=================================================================================
                 # FEATURE ENGINEER A BINARY COLUMN TO DENOTE IF PICKUP-DROPOFF DATES ARE WEEKENDS
                 #=================================================================================
                 df = is_weekend(df, 'pickup')
                 df = is_weekend(df, 'dropoff')
-
 
                 #=================================================================================
                 # FEATURE ENGINEER PICKUP QUARTERS OF THE DAY (1 IN 96 QUARTERS IN A DAY)
@@ -246,12 +243,6 @@ def main(logger_object:logging.Logger):
                 ).with_columns(
                     dropoff_quarter = ( (pl.col('tpep_dropoff_datetime').dt.hour() * 60 + pl.col('tpep_dropoff_datetime').dt.minute())/15 ).floor().cast(pl.Int8)
                 )
-
-                #=========================================================================
-                # ONE-HOT ENCODE THE DAYTIME VALUES (RUSH-HOUR, OVERNIGHT, DAYTIME)
-                #=========================================================================
-                # df = one_hot_encode_column(df, 'pickup_daytime')
-                # df = one_hot_encode_column(df, 'dropoff_daytime')
 
                 # ==================================================
                 # 3. REMOVE ROWS NOT FOLLOWING GENERAL COLUMN RULES

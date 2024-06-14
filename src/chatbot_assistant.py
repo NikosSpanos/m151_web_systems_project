@@ -74,7 +74,7 @@ def compute_trip_and_centroid_distance(destination_metadata:Tuple[dict, dict, di
     ).kilometers
     return trip_distance, centoid_distance
 
-def retrieve_day_time_metadata(day:str, time:str)-> Tuple:
+def retrieve_pickup_date_and_time_metadata(day:str, time:str)-> Tuple:
     day_mapping:dict = {
         "monday": 0,
         "tuesday": 1,
@@ -113,9 +113,22 @@ def retrieve_day_time_metadata(day:str, time:str)-> Tuple:
     month_start = datetime(year=year_dt, month=month_dt, day=1)
     pickup_tm = datetime(year=year_dt, month=month_dt, day=day_dt, hour=hour_tm, minute=minute_tm)
     pickup_seconds = (pickup_tm - month_start).total_seconds()/60
-    return pickup_daytime, pickup_hour, pickup_weekday, pickup_quarter, pickup_seconds, pickup_holiday, pickup_weekend
+    return pickup_daytime, pickup_hour, pickup_weekday, pickup_quarter, pickup_seconds, pickup_holiday, pickup_weekend, year_dt, month_dt, day_dt, hol_dts
 
-def retrieve_model_artifacts()->str:
+def retrieve_dropoff_date_and_time_metadata(dropoff_datetime:datetime, hol_dts:list)-> Tuple:
+    dropoff_daytime = 1 if (dropoff_datetime.hour in range(7,11)) or (dropoff_datetime.hour in range(16,20)) else 2 if dropoff_datetime.hour in [20,21,22,23,0,1,2,3,4,5,6] else 3
+    dropoff_hour = dropoff_datetime.hour
+    dropoff_weekday = dropoff_datetime.weekday() + 1
+    dropoff_quarter =  (dropoff_datetime.hour * 60 + dropoff_datetime.minute) // 15 + 1
+    month_start = datetime(year=dropoff_datetime.year, month=dropoff_datetime.month, day=1)
+    dropoff_seconds = (dropoff_datetime - month_start).total_seconds()/60
+    dropoff_holiday = int(dropoff_datetime in hol_dts)
+    dropoff_weekend = int(dropoff_weekday in [6,7])
+
+    return dropoff_daytime, dropoff_hour, dropoff_weekday, dropoff_quarter, dropoff_seconds, dropoff_holiday, dropoff_weekend
+
+
+def retrieve_model_artifacts(model_type:str)->str:
     config = configparser.ConfigParser()
     current_dir = os.path.dirname(os.path.abspath(__file__))
     parent_dir = os.path.dirname(current_dir)
@@ -123,11 +136,11 @@ def retrieve_model_artifacts()->str:
 
     application_path:str = config.get("settings", "application_path")
     model_artifacts_parent:str = config.get("ml-settings", "model_artifacts_path")
-    model_artifacts_child:str = config.get("ml-settings", "duration_model_artifact")
-    duration_model_path:str = os.path.join(
+    model_artifacts_child:str = config.get("ml-settings", "duration_model_artifact") if model_type=="duration" else config.get("ml-settings", "cost_model_artifact")
+    target_model_path:str = os.path.join(
         application_path, model_artifacts_parent, model_artifacts_child
     )
-    available_directories:list = [os.path.join(duration_model_path, file) for file in os.listdir(duration_model_path)]
+    available_directories:list = [os.path.join(target_model_path, file) for file in os.listdir(target_model_path)]
     latest_modified_directory:str = max(available_directories, key=os.path.getmtime)
     return latest_modified_directory
 
@@ -150,7 +163,7 @@ def ai_advisor():
 
     # Set up triggering words
     triggering_appriciation_words = ["Thanks", "Thank you", "You are the best", "helpful"]
-    triggering_advice_words = ["from", "to", "on", "at"]
+    triggering_advice_words = ["from", "to", "for", "at"]
 
     # Accept user input
     if prompt := st.chat_input("What's up?"):
@@ -160,14 +173,16 @@ def ai_advisor():
         with st.chat_message("user"):
             st.markdown(prompt)
 
-        if all(word.lower() in str.lower(st.session_state.messages[-1]["content"]) for word in triggering_advice_words):
+        if all(word.lower() in str.strip(str.lower(st.session_state.messages[-1]["content"])) for word in triggering_advice_words):
 
             # Define regular expressions to capture the required information
             from_pattern = r'from\s+(.*?)\s+to'
-            to_pattern = r'(?:.*\bto\s)(.*?)(?=\s*on\b)'
-            day_pattern = r"on\s(\w+)\sat"
+            to_pattern = r'(?:.*\bto\s)(.*?)(?=\s*for\b)'
+            day_pattern = r"for\s(\w+)\sat"
             time_pattern = r"at\s([\d:]+)"
             matching_time = r'\d{2}:\d{2}'
+
+            assert "for" in to_pattern, "Please check that your have provided a day value for the trip scheduling by typing <for> and a day."
 
             # Extract information using the defined patterns
             pickup_location = re.search(from_pattern, prompt, re.IGNORECASE).group(1).strip()
@@ -177,15 +192,11 @@ def ai_advisor():
             day = re.search(day_pattern, prompt, re.IGNORECASE).group(1).strip().lower()
             pickup_time = re.search(time_pattern, prompt, re.IGNORECASE).group(1).strip()
 
-            print(f"From match: {pickup_location}")
-            print(f"To match: {dropoff_location}")
-            print(f"On match: {day}")
-            print(f"At match: {pickup_time}")
-
             if (pickup_location and dropoff_location and day and pickup_time):
                 if re.match(matching_time, pickup_time):
                     (go_from, go_to, neighborhood_from, neighborhood_to) = retrieve_trip_metadata(pickup_location, dropoff_location)
                     (trip_distance, centroid_distance) = compute_trip_and_centroid_distance((go_from, go_to, neighborhood_from, neighborhood_to))
+                    trip_type:str = "short_trip" if trip_distance < 30.0 else "long_trip"
                     (
                         pickup_daytime,
                         pickup_hour,
@@ -193,8 +204,12 @@ def ai_advisor():
                         pickup_quarter,
                         pickup_seconds,
                         pickup_holiday,
-                        pickup_weekend
-                    ) = retrieve_day_time_metadata(day, pickup_time)
+                        pickup_weekend,
+                        current_year,
+                        current_month,
+                        current_day,
+                        hol_dts
+                    ) = retrieve_pickup_date_and_time_metadata(day, pickup_time)
                     features:np.ndarray = np.array(
                         [
                             trip_distance,
@@ -210,12 +225,9 @@ def ai_advisor():
                     ).reshape(1,-1)
                     cache_key:str = str(features)
                     if r.exists(cache_key):
-                        print("REDIS KEY EXISTS")
                         avg_predicted_trip_duration:float = float(r.get(cache_key))
-                        print(avg_predicted_trip_duration)
                     else:
-                        model_artifacts:str = retrieve_model_artifacts()
-                        trip_type:str = "short_trip" if trip_distance < 30.0 else "long_trip"
+                        model_artifacts:str = retrieve_model_artifacts("duration")
                         models_path:str = os.path.join(model_artifacts, trip_type, "models")
                         predictions:list = []
                         for model in os.listdir(models_path):
@@ -227,9 +239,59 @@ def ai_advisor():
 
                     delta = dt.timedelta(minutes=avg_predicted_trip_duration)
                     eta = eta_duration(pickup_time, avg_predicted_trip_duration)
+                    
+                    initial_time = datetime.strptime(pickup_time, "%H:%M")
+                    initial_time = initial_time.replace(year=current_year, month=current_month, day=current_day)
+                    whole_minutes = int(avg_predicted_trip_duration)
+                    fractional_seconds = (avg_predicted_trip_duration - whole_minutes) * 60
+                    computed_duration = timedelta(minutes=whole_minutes, seconds=fractional_seconds)
+                    dropoff_datetime = initial_time + computed_duration
+                    (
+                        dropoff_daytime,
+                        dropoff_hour,
+                        dropoff_weekday,
+                        dropoff_quarter,
+                        dropoff_seconds,
+                        dropoff_holiday,
+                        dropoff_weekend
+                    ) = retrieve_dropoff_date_and_time_metadata(dropoff_datetime, hol_dts)
+                    features_cost_model:np.ndarray = np.array(
+                        [
+                            avg_predicted_trip_duration,
+                            pickup_daytime,
+                            dropoff_daytime,
+                            pickup_hour,
+                            dropoff_hour,
+                            pickup_weekday,
+                            dropoff_weekday,
+                            pickup_quarter,
+                            dropoff_quarter,
+                            pickup_seconds,
+                            dropoff_seconds,
+                            pickup_holiday,
+                            dropoff_holiday,
+                            pickup_weekend,
+                            dropoff_weekend,
+                            centroid_distance
+                        ]
+                    ).reshape(1,-1)
+                    cache_key:str = str(features_cost_model)
+                    if r.exists(cache_key):
+                        # print("REDIS KEY EXISTS")
+                        avg_predicted_trip_cost:float = float(r.get(cache_key))
+                    else:
+                        model_artifacts:str = retrieve_model_artifacts("cost")
+                        # print(model_artifacts)
+                        models_path:str = os.path.join(model_artifacts, trip_type, "models")
+                        predictions:list = []
+                        for model in os.listdir(models_path):
+                            regressor:Pipeline = joblib.load(os.path.join(models_path, model))
+                            prediction = regressor.predict(features_cost_model)[0]
+                            predictions.append(prediction)
+                        avg_predicted_trip_cost:float = np.round(np.mean(predictions), 2)
+                        r.set(cache_key, str(avg_predicted_trip_cost))
 
-                    # assistant_response = f"🚕 Your trip will have an average duration of {str(delta)}⏱ (eta: {eta}) and it will approximately cost ${np.round(predicted_cost, 2)}💸 (including taxes)."
-                    assistant_response = f"🚕 Your trip will have an average duration of {str(delta)}⏱ (eta: {eta}) and it will approximately cost 12 dollaars."
+                    assistant_response = f"🚕 Your trip will have an average duration of {str(delta)}⏱ (eta: {eta}) and it will approximately cost ${np.round(avg_predicted_trip_cost, 2)}💸 (including taxes)."
                     with st.chat_message("assistant"):
                         mssg_placeholder, assistant_response = stream_simulation(assistant_response)
                     mssg_placeholder.markdown(assistant_response)
@@ -257,14 +319,14 @@ def ai_advisor():
                 mssg_placeholder, assistant_response = stream_simulation(assistant_response)
             mssg_placeholder.markdown(assistant_response)
             st.session_state.messages.append({"role": "assistant", "content": assistant_response})
-        elif any(word.lower() in str.lower(remove_punctuation(st.session_state.messages[-1]["content"])) for word in triggering_appriciation_words):
+        elif any(word.lower() in str.strip(str.lower(remove_punctuation(st.session_state.messages[-1]["content"]))) for word in triggering_appriciation_words):
             assistant_response = "😎You're welcome. Have a great trip and keep safe!"
             with st.chat_message("assistant"):
                 mssg_placeholder, assistant_response = stream_simulation(assistant_response)
             mssg_placeholder.markdown(assistant_response)
             st.session_state.messages.append({"role": "assistant", "content": assistant_response})
         else:
-            assistant_response = "💔I am an ai taxi-trip advisor. Please write something like 'I would like to go :blue[from] <PLACE> :blue[to] <PLACE> :blue[on] <DAY>' :blue[at] <PICKUP TIME>' "
+            assistant_response = "💔I am an ai taxi-trip advisor. Please write something like 'I would like to go :blue[from] <PLACE> :blue[to] <PLACE> :blue[for] <DAY>' :blue[at] <PICKUP TIME>' "
             with st.chat_message("assistant"):
                 mssg_placeholder, assistant_response = stream_simulation(assistant_response)
             mssg_placeholder.markdown(assistant_response)

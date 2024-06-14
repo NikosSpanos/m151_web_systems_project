@@ -1,0 +1,450 @@
+2024-06-12 17:44:47 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240612/short_trip/models not found. Creating path...
+2024-06-12 17:44:47 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240612/short_trip/residuals not found. Creating path...
+2024-06-12 17:44:47 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240612/short_trip/metadata not found. Creating path...
+2024-06-12 17:44:47 - INFO - 
+
+2024-06-12 17:44:47 - INFO - Chunk 1 | Started model training process
+2024-06-12 17:46:29 - INFO - Chunk 1 | randomforest_regressor RMSE: 4.70491859961115
+2024-06-12 17:46:29 - INFO - Chunk 1 | Plot the residuals and save them to PNG file.
+2024-06-12 17:46:32 - INFO - Chunk 1 | Model training has a good fit on never-seen-before data (RMSE: 4.70491859961115 < STD: 10.13109272962614).
+2024-06-12 17:46:32 - INFO - Chunk 1 | Patience = 0
+2024-06-12 17:46:32 - INFO - Chunk 1 | Completed model training process after: 00:01:44
+2024-06-12 17:46:32 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:46:32 - INFO - 
+
+2024-06-12 17:46:32 - INFO - Chunk 2 | Started model training process
+2024-06-12 17:48:28 - INFO - Chunk 2 | randomforest_regressor RMSE: 4.357807764080481
+2024-06-12 17:48:28 - INFO - Chunk 2 | Plot the residuals and save them to PNG file.
+2024-06-12 17:48:29 - INFO - Chunk 2 | Model training has a good fit on never-seen-before data (RMSE: 4.357807764080481 < STD: 9.833710677860259).
+2024-06-12 17:48:29 - INFO - Chunk 2 | Patience = 0
+2024-06-12 17:48:29 - INFO - Chunk 2 | Completed model training process after: 00:01:57
+2024-06-12 17:48:29 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:48:29 - INFO - 
+
+2024-06-12 17:48:29 - INFO - Chunk 3 | Started model training process
+2024-06-12 17:50:17 - INFO - Chunk 3 | randomforest_regressor RMSE: 4.262025366973699
+2024-06-12 17:50:17 - INFO - Chunk 3 | Plot the residuals and save them to PNG file.
+2024-06-12 17:50:18 - INFO - Chunk 3 | Model training has a good fit on never-seen-before data (RMSE: 4.262025366973699 < STD: 9.583143394041775).
+2024-06-12 17:50:18 - INFO - Chunk 3 | Patience = 0
+2024-06-12 17:50:18 - INFO - Chunk 3 | Completed model training process after: 00:01:48
+2024-06-12 17:50:18 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:50:18 - INFO - 
+
+2024-06-12 17:50:18 - INFO - Chunk 4 | Started model training process
+2024-06-12 17:51:56 - INFO - Chunk 4 | randomforest_regressor RMSE: 4.079151757658258
+2024-06-12 17:51:56 - INFO - Chunk 4 | Plot the residuals and save them to PNG file.
+2024-06-12 17:51:57 - INFO - Chunk 4 | Model training has a good fit on never-seen-before data (RMSE: 4.079151757658258 < STD: 9.307101901604572).
+2024-06-12 17:51:57 - INFO - Chunk 4 | Patience = 0
+2024-06-12 17:51:57 - INFO - Chunk 4 | Completed model training process after: 00:01:38
+2024-06-12 17:51:57 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:51:57 - INFO - 
+
+2024-06-12 17:51:57 - INFO - Chunk 5 | Started model training process
+2024-06-12 17:53:40 - INFO - Chunk 5 | randomforest_regressor RMSE: 4.5107226825987174
+2024-06-12 17:53:40 - INFO - Chunk 5 | Patience = 1
+2024-06-12 17:53:40 - INFO - Chunk 5 | Completed model training process after: 00:01:42
+2024-06-12 17:53:40 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:53:40 - INFO - 
+
+2024-06-12 17:53:40 - INFO - Chunk 6 | Started model training process
+2024-06-12 17:55:20 - INFO - Chunk 6 | randomforest_regressor RMSE: 4.299697855943283
+2024-06-12 17:55:20 - INFO - Chunk 6 | Patience = 2
+2024-06-12 17:55:20 - INFO - Chunk 6 | Completed model training process after: 00:01:39
+2024-06-12 17:55:20 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:55:20 - INFO - 
+
+2024-06-12 17:55:20 - INFO - Chunk 7 | Started model training process
+2024-06-12 17:57:09 - INFO - Chunk 7 | randomforest_regressor RMSE: 4.446585566501881
+2024-06-12 17:57:09 - INFO - Chunk 7 | Patience = 3
+2024-06-12 17:57:09 - INFO - Chunk 7 | Completed model training process after: 00:01:49
+2024-06-12 17:57:09 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:57:09 - INFO - 
+
+2024-06-12 17:57:09 - INFO - Chunk 8 | Started model training process
+2024-06-12 17:59:00 - INFO - Chunk 8 | randomforest_regressor RMSE: 4.44265223977239
+2024-06-12 17:59:00 - INFO - Chunk 8 | Patience = 4
+2024-06-12 17:59:00 - INFO - Chunk 8 | Completed model training process after: 00:01:50
+2024-06-12 17:59:00 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 17:59:00 - INFO - 
+
+2024-06-12 17:59:00 - INFO - Chunk 9 | Started model training process
+2024-06-12 17:59:00 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 114, 'max_depth': 28, 'max_samples': 0.2875, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 18:01:29 - INFO - Chunk 9 | randomforest_regressor RMSE: 4.7990877223371475
+2024-06-12 18:01:29 - INFO - Chunk 9 | Patience = 0
+2024-06-12 18:01:29 - INFO - Chunk 9 | Completed model training process after: 00:02:28
+2024-06-12 18:01:29 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:01:29 - INFO - 
+
+2024-06-12 18:01:29 - INFO - Chunk 10 | Started model training process
+2024-06-12 18:03:19 - INFO - Chunk 10 | randomforest_regressor RMSE: 4.5759587301685505
+2024-06-12 18:03:19 - INFO - Chunk 10 | Patience = 1
+2024-06-12 18:03:19 - INFO - Chunk 10 | Completed model training process after: 00:01:50
+2024-06-12 18:03:19 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:03:19 - INFO - 
+
+2024-06-12 18:03:19 - INFO - Chunk 11 | Started model training process
+2024-06-12 18:05:12 - INFO - Chunk 11 | randomforest_regressor RMSE: 4.836665547184515
+2024-06-12 18:05:12 - INFO - Chunk 11 | Patience = 2
+2024-06-12 18:05:12 - INFO - Chunk 11 | Completed model training process after: 00:01:53
+2024-06-12 18:05:12 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:05:12 - INFO - 
+
+2024-06-12 18:05:12 - INFO - Chunk 12 | Started model training process
+2024-06-12 18:07:00 - INFO - Chunk 12 | randomforest_regressor RMSE: 4.069670865337348
+2024-06-12 18:07:00 - INFO - Chunk 12 | Plot the residuals and save them to PNG file.
+2024-06-12 18:07:01 - INFO - Chunk 12 | Model training has a good fit on never-seen-before data (RMSE: 4.069670865337348 < STD: 9.033638288346943).
+2024-06-12 18:07:01 - INFO - Chunk 12 | Patience = 0
+2024-06-12 18:07:01 - INFO - Chunk 12 | Completed model training process after: 00:01:48
+2024-06-12 18:07:01 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:07:01 - INFO - 
+
+2024-06-12 18:07:01 - INFO - Chunk 13 | Started model training process
+2024-06-12 18:08:47 - INFO - Chunk 13 | randomforest_regressor RMSE: 4.531659818815055
+2024-06-12 18:08:47 - INFO - Chunk 13 | Patience = 1
+2024-06-12 18:08:47 - INFO - Chunk 13 | Completed model training process after: 00:01:46
+2024-06-12 18:08:47 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:08:47 - INFO - 
+
+2024-06-12 18:08:47 - INFO - Chunk 14 | Started model training process
+2024-06-12 18:10:35 - INFO - Chunk 14 | randomforest_regressor RMSE: 4.352288495244256
+2024-06-12 18:10:35 - INFO - Chunk 14 | Patience = 2
+2024-06-12 18:10:35 - INFO - Chunk 14 | Completed model training process after: 00:01:47
+2024-06-12 18:10:35 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:10:35 - INFO - 
+
+2024-06-12 18:10:35 - INFO - Chunk 15 | Started model training process
+2024-06-12 18:12:25 - INFO - Chunk 15 | randomforest_regressor RMSE: 4.453050948455659
+2024-06-12 18:12:25 - INFO - Chunk 15 | Patience = 3
+2024-06-12 18:12:25 - INFO - Chunk 15 | Completed model training process after: 00:01:50
+2024-06-12 18:12:25 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:12:25 - INFO - 
+
+2024-06-12 18:12:25 - INFO - Chunk 16 | Started model training process
+2024-06-12 18:14:14 - INFO - Chunk 16 | randomforest_regressor RMSE: 4.712285053202052
+2024-06-12 18:14:14 - INFO - Chunk 16 | Patience = 4
+2024-06-12 18:14:14 - INFO - Chunk 16 | Completed model training process after: 00:01:48
+2024-06-12 18:14:14 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:14:14 - INFO - 
+
+2024-06-12 18:14:14 - INFO - Chunk 17 | Started model training process
+2024-06-12 18:14:14 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 131, 'max_depth': 32, 'max_samples': 0.33062499999999995, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 18:17:19 - INFO - Chunk 17 | randomforest_regressor RMSE: 4.222730587520786
+2024-06-12 18:17:19 - INFO - Chunk 17 | Patience = 0
+2024-06-12 18:17:19 - INFO - Chunk 17 | Completed model training process after: 00:03:05
+2024-06-12 18:17:19 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:17:19 - INFO - 
+
+2024-06-12 18:17:19 - INFO - Chunk 18 | Started model training process
+2024-06-12 18:19:16 - INFO - Chunk 18 | randomforest_regressor RMSE: 4.512282670589912
+2024-06-12 18:19:16 - INFO - Chunk 18 | Patience = 1
+2024-06-12 18:19:16 - INFO - Chunk 18 | Completed model training process after: 00:01:56
+2024-06-12 18:19:16 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:19:16 - INFO - 
+
+2024-06-12 18:19:16 - INFO - Chunk 19 | Started model training process
+2024-06-12 18:21:04 - INFO - Chunk 19 | randomforest_regressor RMSE: 4.306212908610705
+2024-06-12 18:21:04 - INFO - Chunk 19 | Patience = 2
+2024-06-12 18:21:04 - INFO - Chunk 19 | Completed model training process after: 00:01:47
+2024-06-12 18:21:04 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:21:04 - INFO - 
+
+2024-06-12 18:21:04 - INFO - Chunk 20 | Started model training process
+2024-06-12 18:22:49 - INFO - Chunk 20 | randomforest_regressor RMSE: 4.084354536121586
+2024-06-12 18:22:49 - INFO - Chunk 20 | Patience = 3
+2024-06-12 18:22:49 - INFO - Chunk 20 | Completed model training process after: 00:01:44
+2024-06-12 18:22:49 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:22:49 - INFO - 
+
+2024-06-12 18:22:49 - INFO - Chunk 21 | Started model training process
+2024-06-12 18:24:15 - INFO - Chunk 21 | randomforest_regressor RMSE: 4.204541639177582
+2024-06-12 18:24:15 - INFO - Chunk 21 | Patience = 4
+2024-06-12 18:24:15 - INFO - Chunk 21 | Completed model training process after: 00:01:26
+2024-06-12 18:24:15 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:24:15 - INFO - 
+
+2024-06-12 18:24:15 - INFO - Chunk 22 | Started model training process
+2024-06-12 18:24:15 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 150, 'max_depth': 36, 'max_samples': 0.3802187499999999, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 18:27:14 - INFO - Chunk 22 | randomforest_regressor RMSE: 3.6293293648447382
+2024-06-12 18:27:14 - INFO - Chunk 22 | Plot the residuals and save them to PNG file.
+2024-06-12 18:27:15 - INFO - Chunk 22 | Model training has a good fit on never-seen-before data (RMSE: 3.6293293648447382 < STD: 8.339493231507648).
+2024-06-12 18:27:15 - INFO - Chunk 22 | Patience = 0
+2024-06-12 18:27:15 - INFO - Chunk 22 | Completed model training process after: 00:02:59
+2024-06-12 18:27:15 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:27:15 - INFO - 
+
+2024-06-12 18:27:15 - INFO - Chunk 23 | Started model training process
+2024-06-12 18:30:24 - INFO - Chunk 23 | randomforest_regressor RMSE: 4.48235546916643
+2024-06-12 18:30:24 - INFO - Chunk 23 | Patience = 1
+2024-06-12 18:30:24 - INFO - Chunk 23 | Completed model training process after: 00:03:09
+2024-06-12 18:30:24 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:30:24 - INFO - 
+
+2024-06-12 18:30:24 - INFO - Chunk 24 | Started model training process
+2024-06-12 18:33:26 - INFO - Chunk 24 | randomforest_regressor RMSE: 3.9948019105422903
+2024-06-12 18:33:26 - INFO - Chunk 24 | Patience = 2
+2024-06-12 18:33:26 - INFO - Chunk 24 | Completed model training process after: 00:03:01
+2024-06-12 18:33:26 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:33:26 - INFO - 
+
+2024-06-12 18:33:26 - INFO - Chunk 25 | Started model training process
+2024-06-12 18:36:30 - INFO - Chunk 25 | randomforest_regressor RMSE: 4.04856287505261
+2024-06-12 18:36:30 - INFO - Chunk 25 | Patience = 3
+2024-06-12 18:36:30 - INFO - Chunk 25 | Completed model training process after: 00:03:03
+2024-06-12 18:36:30 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:36:30 - INFO - 
+
+2024-06-12 18:36:30 - INFO - Chunk 26 | Started model training process
+2024-06-12 18:39:36 - INFO - Chunk 26 | randomforest_regressor RMSE: 3.7263351251651975
+2024-06-12 18:39:36 - INFO - Chunk 26 | Patience = 4
+2024-06-12 18:39:36 - INFO - Chunk 26 | Completed model training process after: 00:03:06
+2024-06-12 18:39:36 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:39:36 - INFO - 
+
+2024-06-12 18:39:36 - INFO - Chunk 27 | Started model training process
+2024-06-12 18:39:37 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 172, 'max_depth': 41, 'max_samples': 0.43725156249999986, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 18:43:24 - INFO - Chunk 27 | randomforest_regressor RMSE: 3.343418878387733
+2024-06-12 18:43:24 - INFO - Chunk 27 | Plot the residuals and save them to PNG file.
+2024-06-12 18:43:25 - INFO - Chunk 27 | Model training has a good fit on never-seen-before data (RMSE: 3.343418878387733 < STD: 7.26800260981971).
+2024-06-12 18:43:25 - INFO - Chunk 27 | Patience = 0
+2024-06-12 18:43:25 - INFO - Chunk 27 | Completed model training process after: 00:03:48
+2024-06-12 18:43:25 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:43:25 - INFO - 
+
+2024-06-12 18:43:25 - INFO - Chunk 28 | Started model training process
+2024-06-12 18:47:21 - INFO - Chunk 28 | randomforest_regressor RMSE: 3.7341164392692963
+2024-06-12 18:47:21 - INFO - Chunk 28 | Patience = 1
+2024-06-12 18:47:21 - INFO - Chunk 28 | Completed model training process after: 00:03:56
+2024-06-12 18:47:21 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:47:21 - INFO - 
+
+2024-06-12 18:47:21 - INFO - Chunk 29 | Started model training process
+2024-06-12 18:51:20 - INFO - Chunk 29 | randomforest_regressor RMSE: 3.678673576690503
+2024-06-12 18:51:20 - INFO - Chunk 29 | Patience = 2
+2024-06-12 18:51:20 - INFO - Chunk 29 | Completed model training process after: 00:03:58
+2024-06-12 18:51:20 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:51:20 - INFO - 
+
+2024-06-12 18:51:20 - INFO - Chunk 30 | Started model training process
+2024-06-12 18:55:20 - INFO - Chunk 30 | randomforest_regressor RMSE: 4.09512859727707
+2024-06-12 18:55:20 - INFO - Chunk 30 | Patience = 3
+2024-06-12 18:55:20 - INFO - Chunk 30 | Completed model training process after: 00:03:59
+2024-06-12 18:55:20 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:55:20 - INFO - 
+
+2024-06-12 18:55:20 - INFO - Chunk 31 | Started model training process
+2024-06-12 18:59:18 - INFO - Chunk 31 | randomforest_regressor RMSE: 4.022873602863635
+2024-06-12 18:59:18 - INFO - Chunk 31 | Patience = 4
+2024-06-12 18:59:18 - INFO - Chunk 31 | Completed model training process after: 00:03:58
+2024-06-12 18:59:18 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 18:59:18 - INFO - 
+
+2024-06-12 18:59:18 - INFO - Chunk 32 | Started model training process
+2024-06-12 18:59:19 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 197, 'max_depth': 47, 'max_samples': 0.5028392968749998, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 19:04:32 - INFO - Chunk 32 | randomforest_regressor RMSE: 3.6329081337719726
+2024-06-12 19:04:32 - INFO - Chunk 32 | Patience = 0
+2024-06-12 19:04:32 - INFO - Chunk 32 | Completed model training process after: 00:05:13
+2024-06-12 19:04:32 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:04:32 - INFO - 
+
+2024-06-12 19:04:32 - INFO - Chunk 33 | Started model training process
+2024-06-12 19:08:17 - INFO - Chunk 33 | randomforest_regressor RMSE: 3.7225344675907444
+2024-06-12 19:08:17 - INFO - Chunk 33 | Patience = 1
+2024-06-12 19:08:17 - INFO - Chunk 33 | Completed model training process after: 00:03:45
+2024-06-12 19:08:17 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:08:17 - INFO - 
+
+2024-06-12 19:08:17 - INFO - Chunk 34 | Started model training process
+2024-06-12 19:12:10 - INFO - Chunk 34 | randomforest_regressor RMSE: 3.7311540714133096
+2024-06-12 19:12:10 - INFO - Chunk 34 | Patience = 2
+2024-06-12 19:12:10 - INFO - Chunk 34 | Completed model training process after: 00:03:53
+2024-06-12 19:12:10 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:12:10 - INFO - 
+
+2024-06-12 19:12:10 - INFO - Chunk 35 | Started model training process
+2024-06-12 19:16:02 - INFO - Chunk 35 | randomforest_regressor RMSE: 3.661156153689095
+2024-06-12 19:16:02 - INFO - Chunk 35 | Patience = 3
+2024-06-12 19:16:02 - INFO - Chunk 35 | Completed model training process after: 00:03:51
+2024-06-12 19:16:02 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:16:02 - INFO - 
+
+2024-06-12 19:16:02 - INFO - Chunk 36 | Started model training process
+2024-06-12 19:20:02 - INFO - Chunk 36 | randomforest_regressor RMSE: 3.613252405097002
+2024-06-12 19:20:02 - INFO - Chunk 36 | Patience = 4
+2024-06-12 19:20:02 - INFO - Chunk 36 | Completed model training process after: 00:04:00
+2024-06-12 19:20:02 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:20:02 - INFO - 
+
+2024-06-12 19:20:02 - INFO - Chunk 37 | Started model training process
+2024-06-12 19:20:02 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 226, 'max_depth': 54, 'max_samples': 0.5782651914062498, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 19:26:35 - INFO - Chunk 37 | randomforest_regressor RMSE: 3.620342338534226
+2024-06-12 19:26:35 - INFO - Chunk 37 | Patience = 0
+2024-06-12 19:26:35 - INFO - Chunk 37 | Completed model training process after: 00:06:33
+2024-06-12 19:26:35 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:26:35 - INFO - 
+
+2024-06-12 19:26:35 - INFO - Chunk 38 | Started model training process
+2024-06-12 19:30:34 - INFO - Chunk 38 | randomforest_regressor RMSE: 3.9554508245231665
+2024-06-12 19:30:34 - INFO - Chunk 38 | Patience = 1
+2024-06-12 19:30:34 - INFO - Chunk 38 | Completed model training process after: 00:03:59
+2024-06-12 19:30:34 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:30:34 - INFO - 
+
+2024-06-12 19:30:34 - INFO - Chunk 39 | Started model training process
+2024-06-12 19:34:18 - INFO - Chunk 39 | randomforest_regressor RMSE: 3.6810269607300343
+2024-06-12 19:34:18 - INFO - Chunk 39 | Patience = 2
+2024-06-12 19:34:18 - INFO - Chunk 39 | Completed model training process after: 00:03:43
+2024-06-12 19:34:18 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:34:18 - INFO - 
+
+2024-06-12 19:34:18 - INFO - Chunk 40 | Started model training process
+2024-06-12 19:37:58 - INFO - Chunk 40 | randomforest_regressor RMSE: 3.6721233873144272
+2024-06-12 19:37:58 - INFO - Chunk 40 | Patience = 3
+2024-06-12 19:37:58 - INFO - Chunk 40 | Completed model training process after: 00:03:39
+2024-06-12 19:37:58 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:37:58 - INFO - 
+
+2024-06-12 19:37:58 - INFO - Chunk 41 | Started model training process
+2024-06-12 19:42:01 - INFO - Chunk 41 | randomforest_regressor RMSE: 4.096446080021543
+2024-06-12 19:42:01 - INFO - Chunk 41 | Patience = 4
+2024-06-12 19:42:01 - INFO - Chunk 41 | Completed model training process after: 00:04:03
+2024-06-12 19:42:01 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:42:01 - INFO - 
+
+2024-06-12 19:42:01 - INFO - Chunk 42 | Started model training process
+2024-06-12 19:42:01 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 259, 'max_depth': 62, 'max_samples': 0.6650049701171872, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 19:49:34 - INFO - Chunk 42 | randomforest_regressor RMSE: 3.661085112645508
+2024-06-12 19:49:34 - INFO - Chunk 42 | Patience = 0
+2024-06-12 19:49:34 - INFO - Chunk 42 | Completed model training process after: 00:07:33
+2024-06-12 19:49:34 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:49:34 - INFO - 
+
+2024-06-12 19:49:34 - INFO - Chunk 43 | Started model training process
+2024-06-12 19:53:26 - INFO - Chunk 43 | randomforest_regressor RMSE: 3.4385564860651185
+2024-06-12 19:53:26 - INFO - Chunk 43 | Patience = 1
+2024-06-12 19:53:26 - INFO - Chunk 43 | Completed model training process after: 00:03:51
+2024-06-12 19:53:26 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:53:26 - INFO - 
+
+2024-06-12 19:53:26 - INFO - Chunk 44 | Started model training process
+2024-06-12 19:57:30 - INFO - Chunk 44 | randomforest_regressor RMSE: 3.0340940554477167
+2024-06-12 19:57:30 - INFO - Chunk 44 | Plot the residuals and save them to PNG file.
+2024-06-12 19:57:31 - INFO - Chunk 44 | Model training has a good fit on never-seen-before data (RMSE: 3.0340940554477167 < STD: 7.2417747100386185).
+2024-06-12 19:57:31 - INFO - Chunk 44 | Patience = 0
+2024-06-12 19:57:31 - INFO - Chunk 44 | Completed model training process after: 00:04:05
+2024-06-12 19:57:31 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 19:57:31 - INFO - 
+
+2024-06-12 19:57:31 - INFO - Chunk 45 | Started model training process
+2024-06-12 20:01:45 - INFO - Chunk 45 | randomforest_regressor RMSE: 3.109147218445714
+2024-06-12 20:01:45 - INFO - Chunk 45 | Patience = 1
+2024-06-12 20:01:45 - INFO - Chunk 45 | Completed model training process after: 00:04:14
+2024-06-12 20:01:45 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:01:45 - INFO - 
+
+2024-06-12 20:01:45 - INFO - Chunk 46 | Started model training process
+2024-06-12 20:06:08 - INFO - Chunk 46 | randomforest_regressor RMSE: 3.2314404252134463
+2024-06-12 20:06:08 - INFO - Chunk 46 | Patience = 2
+2024-06-12 20:06:08 - INFO - Chunk 46 | Completed model training process after: 00:04:23
+2024-06-12 20:06:08 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:06:08 - INFO - 
+
+2024-06-12 20:06:08 - INFO - Chunk 47 | Started model training process
+2024-06-12 20:10:09 - INFO - Chunk 47 | randomforest_regressor RMSE: 3.0804904145261935
+2024-06-12 20:10:09 - INFO - Chunk 47 | Patience = 3
+2024-06-12 20:10:09 - INFO - Chunk 47 | Completed model training process after: 00:04:00
+2024-06-12 20:10:09 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:10:09 - INFO - 
+
+2024-06-12 20:10:09 - INFO - Chunk 48 | Started model training process
+2024-06-12 20:14:06 - INFO - Chunk 48 | randomforest_regressor RMSE: 3.9233628523646904
+2024-06-12 20:14:06 - INFO - Chunk 48 | Patience = 4
+2024-06-12 20:14:06 - INFO - Chunk 48 | Completed model training process after: 00:03:56
+2024-06-12 20:14:06 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:14:06 - INFO - 
+
+2024-06-12 20:14:06 - INFO - Chunk 49 | Started model training process
+2024-06-12 20:14:06 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 297, 'max_depth': 71, 'max_samples': 0.7647557156347652, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 20:24:46 - INFO - Chunk 49 | randomforest_regressor RMSE: 3.271402154474047
+2024-06-12 20:24:46 - INFO - Chunk 49 | Patience = 0
+2024-06-12 20:24:46 - INFO - Chunk 49 | Completed model training process after: 00:10:39
+2024-06-12 20:24:46 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:24:46 - INFO - 
+
+2024-06-12 20:24:46 - INFO - Chunk 50 | Started model training process
+2024-06-12 20:28:45 - INFO - Chunk 50 | randomforest_regressor RMSE: 4.516952119996569
+2024-06-12 20:28:45 - INFO - Chunk 50 | Patience = 1
+2024-06-12 20:28:45 - INFO - Chunk 50 | Completed model training process after: 00:03:59
+2024-06-12 20:28:45 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:28:45 - INFO - 
+
+2024-06-12 20:28:45 - INFO - Chunk 51 | Started model training process
+2024-06-12 20:32:43 - INFO - Chunk 51 | randomforest_regressor RMSE: 4.394553280093622
+2024-06-12 20:32:43 - INFO - Chunk 51 | Patience = 2
+2024-06-12 20:32:43 - INFO - Chunk 51 | Completed model training process after: 00:03:57
+2024-06-12 20:32:43 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:32:43 - INFO - 
+
+2024-06-12 20:32:43 - INFO - Chunk 52 | Started model training process
+2024-06-12 20:36:34 - INFO - Chunk 52 | randomforest_regressor RMSE: 4.410360382215954
+2024-06-12 20:36:34 - INFO - Chunk 52 | Patience = 3
+2024-06-12 20:36:34 - INFO - Chunk 52 | Completed model training process after: 00:03:51
+2024-06-12 20:36:34 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:36:34 - INFO - 
+
+2024-06-12 20:36:34 - INFO - Chunk 53 | Started model training process
+2024-06-12 20:40:19 - INFO - Chunk 53 | randomforest_regressor RMSE: 4.504586203406434
+2024-06-12 20:40:19 - INFO - Chunk 53 | Patience = 4
+2024-06-12 20:40:19 - INFO - Chunk 53 | Completed model training process after: 00:03:45
+2024-06-12 20:40:19 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:40:19 - INFO - 
+
+2024-06-12 20:40:20 - INFO - Chunk 54 | Started model training process
+2024-06-12 20:40:20 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 341, 'max_depth': 81, 'max_samples': 0.8794690729799799, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 20:55:29 - INFO - Chunk 54 | randomforest_regressor RMSE: 5.0489953654777375
+2024-06-12 20:55:29 - INFO - Chunk 54 | Patience = 0
+2024-06-12 20:55:29 - INFO - Chunk 54 | Completed model training process after: 00:15:09
+2024-06-12 20:55:29 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:55:29 - INFO - 
+
+2024-06-12 20:55:29 - INFO - Chunk 55 | Started model training process
+2024-06-12 20:59:49 - INFO - Chunk 55 | randomforest_regressor RMSE: 4.420393021991089
+2024-06-12 20:59:49 - INFO - Chunk 55 | Patience = 1
+2024-06-12 20:59:49 - INFO - Chunk 55 | Completed model training process after: 00:04:19
+2024-06-12 20:59:49 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 20:59:49 - INFO - 
+
+2024-06-12 20:59:49 - INFO - Chunk 56 | Started model training process
+2024-06-12 21:04:05 - INFO - Chunk 56 | randomforest_regressor RMSE: 3.974992294829534
+2024-06-12 21:04:05 - INFO - Chunk 56 | Patience = 2
+2024-06-12 21:04:05 - INFO - Chunk 56 | Completed model training process after: 00:04:16
+2024-06-12 21:04:05 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 21:04:05 - INFO - 
+
+2024-06-12 21:04:05 - INFO - Chunk 57 | Started model training process
+2024-06-12 21:07:56 - INFO - Chunk 57 | randomforest_regressor RMSE: 3.472504794251742
+2024-06-12 21:07:56 - INFO - Chunk 57 | Patience = 3
+2024-06-12 21:07:56 - INFO - Chunk 57 | Completed model training process after: 00:03:50
+2024-06-12 21:07:56 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 21:07:56 - INFO - 
+
+2024-06-12 21:07:56 - INFO - Chunk 58 | Started model training process
+2024-06-12 21:12:03 - INFO - Chunk 58 | randomforest_regressor RMSE: 3.9933386485087787
+2024-06-12 21:12:03 - INFO - Chunk 58 | Patience = 4
+2024-06-12 21:12:03 - INFO - Chunk 58 | Completed model training process after: 00:04:07
+2024-06-12 21:12:03 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 21:12:03 - INFO - 
+
+2024-06-12 21:12:03 - INFO - Chunk 59 | Started model training process
+2024-06-12 21:12:03 - INFO - No improvement for 5 iterations, adjusting hyperparameters for RandomForest regressor: {'n_estimators': 392, 'max_depth': 93, 'max_samples': 0.5, 'min_samples_split': 3, 'min_samples_leaf': 5}
+2024-06-12 21:22:44 - INFO - Chunk 59 | randomforest_regressor RMSE: 3.512874315909209
+2024-06-12 21:22:44 - INFO - Chunk 59 | Patience = 0
+2024-06-12 21:22:44 - INFO - Chunk 59 | Completed model training process after: 00:10:40
+2024-06-12 21:22:44 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 21:22:44 - INFO - 
+
+2024-06-12 21:22:44 - INFO - Chunk 60 | Started model training process
+2024-06-12 21:25:18 - INFO - Chunk 60 | randomforest_regressor RMSE: 3.7579019159403266
+2024-06-12 21:25:18 - INFO - Chunk 60 | Patience = 1
+2024-06-12 21:25:18 - INFO - Chunk 60 | Completed model training process after: 00:02:33
+2024-06-12 21:25:18 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-12 21:25:18 - INFO - SUCCESS: Duration recommendation model completed.

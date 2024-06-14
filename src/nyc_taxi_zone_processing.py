@@ -15,12 +15,11 @@ from commons.staging_modules import init_stg_path, \
     compute_geo_areas, \
     compute_polygon_center, \
     transform_polygons_to_multipolygons, \
-    compute_longitute, \
     fix_data_type, \
     write_df_toJSON
 
 def main(logger_object:logging.Logger):
-    
+
     #========================================================
     # INITIALIZE MODULE VARIABLES
     #========================================================

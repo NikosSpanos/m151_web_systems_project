@@ -1,0 +1,13 @@
+2024-06-13 17:16:35 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240613/long_trip/models already exists. Program will continue.
+2024-06-13 17:16:35 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240613/long_trip/residuals already exists. Program will continue.
+2024-06-13 17:16:35 - INFO - Staging path: /home/nspanos/m151_web_systems_project/ml_models/trip_duration/20240613/long_trip/metadata already exists. Program will continue.
+2024-06-13 17:16:35 - INFO - 
+
+2024-06-13 17:16:35 - INFO - Chunk 1 | Started model training process
+2024-06-13 17:16:40 - INFO - Chunk 1 | linear_regressor RMSE: 14.964641214136606
+2024-06-13 17:16:40 - INFO - Chunk 1 | Plot the residuals and save them to PNG file.
+2024-06-13 17:16:40 - INFO - Chunk 1 | Model training has a good fit on never-seen-before data (RMSE: 14.964641214136606 < STD: 17.584306751608736).
+2024-06-13 17:16:40 - INFO - Chunk 1 | Patience = 0
+2024-06-13 17:16:40 - INFO - Chunk 1 | Completed model training process after: 00:00:05
+2024-06-13 17:16:40 - INFO - ----------------------------------------------------------------------------------------------------
+2024-06-13 17:16:40 - INFO - SUCCESS: Duration recommendation model completed.

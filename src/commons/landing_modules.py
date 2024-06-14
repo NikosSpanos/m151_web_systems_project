@@ -143,18 +143,11 @@ def collect_data(start_offset:int, threshold_date:datetime, starting_checkpoint:
         # Fetch the latest checkpoint date
         stored_checkpoint_date = fetch_latest_collected_date(checkpoint_file, logger_object)
 
-        # if (starting_checkpoint == stored_checkpoint_date and starting_checkpoint != datetime(year=1970, month=1, day=1, hour=0, minute=0, second=0)):
-        #     logger_object.info("Thread: {0}".format(thread_indx))
-        #     logger_object.info("Up-to-date / Collected all the available data. Application will exit.")
-        #     break
-
         params = {
             "$limit": batch_size,
             "$offset": offset,
             "$$app_token": api_token,
             "$where": f"tpep_pickup_datetime > '{starting_checkpoint.isoformat()}' and tpep_pickup_datetime <= '{threshold_date}'"
-            # "$where": f"tpep_pickup_datetime > '{starting_checkpoint.isoformat()}' and tpep_pickup_datetime <= '2021-01-05T00:00:00'"
-            # "$where": f"tpep_pickup_datetime > '{stored_checkpoint_date.isoformat()}' and tpep_pickup_datetime <= '2021-01-05T00:00:00'"
         }
         response = requests.get(api_url, params=params)
 
